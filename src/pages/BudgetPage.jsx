@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFinance } from '../context/FinanceContext'
 import { formatCurrency, calculateBudget, calculateUtilization } from '../utils/calculations'
+import { translations } from '../utils/translations'
 import Header from '../components/Header'
 import MonthSelector from '../components/MonthSelector'
 import MetricCard from '../components/MetricCard'
@@ -18,6 +19,7 @@ import './BudgetPage.css'
 const BudgetPage = () => {
   const navigate = useNavigate()
   const {
+    lang,
     monthlyIncome,
     categoriesGoals,
     categorySpent,
@@ -467,9 +469,9 @@ const BudgetPage = () => {
           {/* Coluna 2: Metas */}
           <div className="budget-section goals-section">
             <div className="section-header">
-              <h2>Metas</h2>
+              <h2>{translations[lang].goals}</h2>
               <button className="btn btn-secondary" onClick={() => navigate('/goals')}>
-                Editar
+                {translations[lang].edit}
               </button>
             </div>
             
@@ -484,7 +486,7 @@ const BudgetPage = () => {
                     <div className="goal-header">
                       <span className="goal-name">
                         <span className="cat-color" style={{ backgroundColor: cat.color }} />
-                        {cat.name}
+                        {translations[lang].categories[cat.id] || cat.name}
                       </span>
                       <span className={`goal-percentage ${utilization > 100 ? 'over-budget' : ''}`}>
                         {utilization.toFixed(1)}%
@@ -504,7 +506,7 @@ const BudgetPage = () => {
                       <span>{formatCurrency(budget)}</span>
                     </div>
                     {utilization > 100 && (
-                      <div className="over-budget-badge">Acima do orçamento</div>
+                      <div className="over-budget-badge">{translations[lang].overBudget}</div>
                     )}
                   </div>
                 )
@@ -515,36 +517,36 @@ const BudgetPage = () => {
         
         {/* Visão Geral - Below the Fold (requires scroll) */}
         <section className="overview-section">
-          <h2>Visão Geral do Mês</h2>
+          <h2>{lang === 'en' ? 'Month Overview' : 'Visão Geral do Mês'}</h2>
           <div className="dashboard-metrics">
             <MetricCard
-              title="Total de Renda"
+              title={lang === 'en' ? 'Total Income' : 'Total de Renda'}
               value={formatCurrency(monthlyIncome)}
-              subtitle="Renda do mês"
+              subtitle={translations[lang].monthlyIncome}
               color="var(--accent-primary)"
             />
             <MetricCard
-              title="Total de Gastos"
+              title={translations[lang].totalSpent}
               value={formatCurrency(totalExpenses)}
-              subtitle={`${expenses.length} gastos registrados`}
+              subtitle={lang === 'en' ? `${expenses.length} recorded expenses` : `${expenses.length} gastos registrados`}
               color="var(--danger)"
             />
             <MetricCard
-              title="Total Investido"
+              title={lang === 'en' ? 'Total Invested' : 'Total Investido'}
               value={formatCurrency(totalInvestments)}
-              subtitle={`${investments.length} investimentos`}
+              subtitle={lang === 'en' ? `${investments.length} investments` : `${investments.length} investimentos`}
               color="var(--success)"
             />
             <MetricCard
-              title="Total de Dívidas"
+              title={lang === 'en' ? 'Total Debts' : 'Total de Dívidas'}
               value={formatCurrency(totalDebts)}
-              subtitle={`${debts.length} dívidas`}
+              subtitle={lang === 'en' ? `${debts.length} debts` : `${debts.length} dívidas`}
               color="var(--danger)"
             />
             <MetricCard
-              title="Dinheiro Restante"
+              title={translations[lang].remaining}
               value={formatCurrency(monthlyIncome - totalExpenses)}
-              subtitle="Disponível"
+              subtitle={lang === 'en' ? 'Available' : 'Disponível'}
               color="var(--warning)"
             />
           </div>

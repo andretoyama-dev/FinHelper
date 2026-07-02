@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useFinance } from '../context/FinanceContext'
+import { translations } from '../utils/translations'
 import './WelcomeModal.css'
 
 const WelcomeModal = ({ isOpen, onClose }) => {
-  const { setUserName } = useFinance()
+  const { setUserName, lang } = useFinance()
   const [name, setName] = useState('')
   const [error, setError] = useState('')
   
@@ -13,12 +14,12 @@ const WelcomeModal = ({ isOpen, onClose }) => {
     e.preventDefault()
     
     if (!name.trim()) {
-      setError('Por favor, digite seu nome')
+      setError(translations[lang].welcomeNameError)
       return
     }
     
     if (name.trim().length < 2) {
-      setError('Nome deve ter pelo menos 2 caracteres')
+      setError(translations[lang].welcomeLengthError)
       return
     }
     
@@ -30,15 +31,15 @@ const WelcomeModal = ({ isOpen, onClose }) => {
     <div className="modal-overlay welcome-modal-overlay">
       <div className="modal-content welcome-modal-content">
         <div className="welcome-header">
-          <h1 className="welcome-title">👋 Bem-vindo ao FinHelper!</h1>
+          <h1 className="welcome-title">{translations[lang].welcomeTitle}</h1>
           <p className="welcome-subtitle">
-            Sua jornada para organizar as finanças começa agora.
+            {translations[lang].welcomeSubtitle}
           </p>
         </div>
         
         <form onSubmit={handleSubmit} className="welcome-form">
           <div className="form-group">
-            <label htmlFor="userName">Como podemos te chamar?</label>
+            <label htmlFor="userName">{translations[lang].welcomeNameLabel}</label>
             <input
               type="text"
               id="userName"
@@ -47,7 +48,7 @@ const WelcomeModal = ({ isOpen, onClose }) => {
                 setName(e.target.value)
                 setError('')
               }}
-              placeholder="Digite seu nome"
+              placeholder={translations[lang].welcomePlaceholder}
               autoFocus
               className={error ? 'error' : ''}
             />
@@ -55,17 +56,17 @@ const WelcomeModal = ({ isOpen, onClose }) => {
           </div>
           
           <button type="submit" className="btn btn-primary btn-large">
-            Começar
+            {translations[lang].welcomeBtn}
           </button>
         </form>
         
         <div className="welcome-features">
-          <p className="features-title">O que você pode fazer:</p>
+          <p className="features-title">{translations[lang].welcomeFeaturesTitle}</p>
           <ul>
-            <li>📊 Controlar gastos e orçamento mensal</li>
-            <li>🎯 Definir metas financeiras personalizadas</li>
-            <li>📈 Visualizar relatórios e estatísticas</li>
-            <li>💾 Exportar dados em PDF, Excel ou JSON</li>
+            <li>{translations[lang].welcomeFeature1}</li>
+            <li>{translations[lang].welcomeFeature2}</li>
+            <li>{translations[lang].welcomeFeature3}</li>
+            <li>{translations[lang].welcomeFeature4}</li>
           </ul>
         </div>
       </div>

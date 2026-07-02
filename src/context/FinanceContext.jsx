@@ -32,6 +32,7 @@ export const FinanceProvider = ({ children }) => {
   // Load initial state from localStorage
   const [theme, setTheme] = useState(() => loadData('theme', 'dark'))
   const [userName, setUserName] = useState(() => loadData('userName', null))
+  const [lang, setLang] = useState(() => loadData('lang', 'en'))
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const saved = loadData('selectedMonth')
     return saved ? new Date(saved) : new Date()
@@ -79,6 +80,10 @@ export const FinanceProvider = ({ children }) => {
   useEffect(() => {
     saveData('userName', userName)
   }, [userName])
+
+  useEffect(() => {
+    saveData('lang', lang)
+  }, [lang])
   
   useEffect(() => {
     saveData('selectedMonth', selectedMonth.toISOString())
@@ -347,7 +352,7 @@ export const FinanceProvider = ({ children }) => {
   }
   
   const resetAll = () => {
-    if (window.confirm('Tem certeza que deseja resetar todos os dados do mês atual? Esta ação não pode ser desfeita.')) {
+    if (window.confirm(lang === 'en' ? 'Are you sure you want to reset all data for the current month? This cannot be undone.' : 'Tem certeza que deseja resetar todos os dados do mês atual? Esta ação não pode ser desfeita.')) {
       setMonthlyData(prev => ({
         ...prev,
         [currentMonthKey]: {
@@ -589,6 +594,8 @@ export const FinanceProvider = ({ children }) => {
   
   const value = {
     // State
+    lang,
+    setLang,
     theme,
     userName,
     selectedMonth,

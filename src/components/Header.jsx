@@ -1,11 +1,12 @@
 import { useState, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useFinance } from '../context/FinanceContext'
+import { translations } from '../utils/translations'
 import './Header.css'
 
 const Header = () => {
   const location = useLocation()
-  const { userName, theme, toggleTheme, exportData, importData, resetAll } = useFinance()
+  const { userName, theme, toggleTheme, exportData, importData, resetAll, lang, setLang } = useFinance()
   
   const [showExportMenu, setShowExportMenu] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
@@ -25,9 +26,9 @@ const Header = () => {
     if (file) {
       const result = await importData(file)
       if (result.success) {
-        alert('Dados importados com sucesso!')
+        alert(translations[lang].importSuccess)
       } else {
-        alert(`Erro ao importar: ${result.error}`)
+        alert(`${translations[lang].importError}${result.error}`)
       }
       setShowImportModal(false)
     }
@@ -49,28 +50,38 @@ const Header = () => {
           to="/" 
           className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
         >
-          ORÇAMENTO DOMÉSTICO
+          {translations[lang].budget}
         </Link>
         <Link 
           to="/goals" 
           className={`nav-link ${location.pathname === '/goals' ? 'active' : ''}`}
         >
-          MINHAS METAS
+          {translations[lang].goals}
         </Link>
         <Link 
           to="/evolution" 
           className={`nav-link ${location.pathname === '/evolution' ? 'active' : ''}`}
         >
-          EVOLUÇÃO
+          {translations[lang].evolution}
         </Link>
       </nav>
       
       <div className="header-actions">
+        {/* Language Switcher */}
+        <button 
+          className="icon-btn lang-toggle-btn" 
+          onClick={() => setLang(lang === 'en' ? 'pt' : 'en')}
+          title={lang === 'en' ? 'Switch to Portuguese' : 'Mudar para Inglês'}
+          style={{ fontSize: '11px', fontWeight: 'bold', fontFamily: 'monospace', minWidth: '32px' }}
+        >
+          {lang === 'en' ? 'PT' : 'EN'}
+        </button>
+
         {/* Reset All Button */}
         <button 
           className="icon-btn" 
           onClick={resetAll}
-          title="Resetar Todos os Dados do Mês"
+          title={translations[lang].resetMonth}
         >
           🗑️
         </button>
@@ -79,7 +90,7 @@ const Header = () => {
         <button 
           className="icon-btn" 
           onClick={toggleTheme}
-          title={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
+          title={theme === 'dark' ? translations[lang].lightMode : translations[lang].darkMode}
         >
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
@@ -89,7 +100,7 @@ const Header = () => {
           <button 
             className="icon-btn"
             onClick={() => setShowExportMenu(!showExportMenu)}
-            title="Exportar Dados"
+            title={translations[lang].exportData}
           >
             📥
           </button>
@@ -97,17 +108,17 @@ const Header = () => {
           {showExportMenu && (
             <div className="dropdown-menu">
               <button onClick={() => handleExport('pdf')}>
-                📄 Exportar PDF
+                {translations[lang].exportPDF}
               </button>
               <button onClick={() => handleExport('excel')}>
-                📊 Exportar Excel
+                {translations[lang].exportExcel}
               </button>
               <button onClick={() => handleExport('json')}>
-                💾 Exportar JSON
+                {translations[lang].exportJSON}
               </button>
               <div className="dropdown-divider"></div>
               <button onClick={handleImportClick}>
-                📤 Importar JSON
+                {translations[lang].importJSON}
               </button>
             </div>
           )}
@@ -115,7 +126,7 @@ const Header = () => {
         
         {/* User Profile */}
         <div className="user-profile">
-          <span className="user-greeting">Olá, {userName || 'Usuário'}</span>
+          <span className="user-greeting">{translations[lang].hello}{userName || translations[lang].user}</span>
           <div className="user-avatar">{userName ? userName.charAt(0).toUpperCase() : 'U'}</div>
         </div>
       </div>
