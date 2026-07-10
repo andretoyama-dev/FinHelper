@@ -577,44 +577,6 @@ const BudgetPage = () => {
           </div>
         </div>
         
-        {/* Visão Geral - Below the Fold (requires scroll) */}
-        <section className="overview-section">
-          <h2>{lang === 'en' ? 'Month Overview' : 'Visão Geral do Mês'}</h2>
-          <div className="dashboard-metrics">
-            <MetricCard
-              title={lang === 'en' ? 'Total Income' : 'Total de Renda'}
-              value={formatCurrency(monthlyIncome)}
-              subtitle={translations[lang].monthlyIncome}
-              color="var(--accent-primary)"
-            />
-            <MetricCard
-              title={translations[lang].totalSpent}
-              value={formatCurrency(totalExpenses)}
-              subtitle={lang === 'en' ? `${expenses.length} recorded expenses` : `${expenses.length} gastos registrados`}
-              color="var(--danger)"
-            />
-            <MetricCard
-              title={lang === 'en' ? 'Total Invested' : 'Total Investido'}
-              value={formatCurrency(totalInvestments)}
-              subtitle={lang === 'en' ? `${investments.length} investments` : `${investments.length} investimentos`}
-              color="var(--success)"
-            />
-            <MetricCard
-              title={lang === 'en' ? 'Total Debts' : 'Total de Dívidas'}
-              value={formatCurrency(totalDebts)}
-              subtitle={lang === 'en' ? `${debts.length} debts` : `${debts.length} dívidas`}
-              color="var(--danger)"
-            />
-            <MetricCard
-              title={translations[lang].remaining}
-              value={formatCurrency(monthlyIncome - totalExpenses)}
-              subtitle={lang === 'en' ? 'Available' : 'Disponível'}
-              color="var(--warning)"
-            />
-          </div>
-        </section>
-        
-        
         {/* Investment Modal */}
         <InvestmentModal
           isOpen={isModalOpen}
