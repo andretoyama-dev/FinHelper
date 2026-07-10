@@ -18,8 +18,10 @@
 }
 
 .header-logo {
-  height: 48px;
+  height: 110px;
   width: auto;
+  margin-top: -32px;
+  margin-bottom: -32px;
   transition: transform 0.2s;
 }
 
