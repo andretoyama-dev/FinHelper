@@ -8,12 +8,14 @@
   gap: var(--spacing-md);
   margin-bottom: 0; /* Remove bottom margin - gap handles spacing */
   border: 1px solid var(--border-color);
+  width: 100%;
 }
 
 .month-navigation {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  flex: 1 1 auto;
 }
 
 .month-btn {
@@ -50,16 +52,21 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  flex: 1.5 1 auto;
+  justify-content: flex-end;
 }
 
 .income-input-wrapper label {
   font-size: 0.875rem;
   color: var(--text-secondary);
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .income-input-wrapper input {
-  width: 150px;
+  flex: 1 1 auto;
+  max-width: 180px;
+  width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
 }
 
@@ -68,6 +75,7 @@
   font-weight: 700;
   color: var(--accent-primary);
   min-width: 120px;
+  text-align: right;
 }
 
 @media (max-width: 768px) {

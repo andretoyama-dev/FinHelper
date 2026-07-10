@@ -180,12 +180,11 @@ const BudgetPage = () => {
       <Header />
       
       <main className="page-content">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <div className="budget-top-bar">
           <MonthSelector />
           <button 
-            className="btn-secondary" 
+            className="manage-categories-btn" 
             onClick={() => setIsCategoryManagerOpen(true)}
-            style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}
           >
             ⚙️ Gerenciar Categorias
           </button>

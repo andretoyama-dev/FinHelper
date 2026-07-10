@@ -8,7 +8,6 @@ import WelcomeModal from './components/WelcomeModal'
 
 function AppContent() {
   const { userName } = useFinance()
-  const [showWelcome, setShowWelcome] = useState(!userName)
   
   return (
     <>
@@ -22,8 +21,8 @@ function AppContent() {
       </Router>
       
       <WelcomeModal 
-        isOpen={showWelcome && !userName} 
-        onClose={() => setShowWelcome(false)} 
+        isOpen={!userName} 
+        onClose={() => {}} 
       />
     </>
   )

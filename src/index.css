@@ -364,3 +364,63 @@ input::placeholder {
     padding: var(--spacing-lg);
   }
 }
+
+/* Premium Animations and Staggered Transitions */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.budget-section, 
+.goal-card, 
+.overview-section, 
+.month-selector, 
+.goals-page .goals-section {
+  animation: fadeSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Stagger entrance delays */
+.month-selector { animation-delay: 0.04s; }
+.manage-categories-btn { animation: fadeSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.08s; }
+.left-column > .summary-section { animation-delay: 0.12s; }
+.left-column > .investments-section { animation-delay: 0.18s; }
+.left-column > .financial-goals-section { animation-delay: 0.24s; }
+.left-column > .debts-section { animation-delay: 0.3s; }
+.right-column > .goals-section { animation-delay: 0.18s; }
+.overview-section { animation-delay: 0.36s; }
+
+/* Dynamic Hover Effects */
+.budget-section, .goal-card {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.3s ease;
+}
+
+.budget-section:hover, .goal-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-primary);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.3), 
+              0 0 16px 2px rgba(212, 162, 89, 0.06);
+}
+
+/* Smooth Interactive Elements */
+.btn-primary, 
+.btn-secondary, 
+.icon-btn, 
+.editable-cell, 
+.subcategory-row, 
+.nav-link,
+.month-btn,
+.manage-categories-btn {
+  transition: all var(--transition-fast) cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-link:hover {
+  transform: translateY(-1px);
+}

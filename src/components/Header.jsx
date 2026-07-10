@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useFinance } from '../context/FinanceContext'
 import { translations } from '../utils/translations'
+import ConfirmModal from './ConfirmModal'
 import './Header.css'
 
 const Header = () => {
@@ -10,6 +11,7 @@ const Header = () => {
   
   const [showExportMenu, setShowExportMenu] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
+  const [isConfirmResetOpen, setIsConfirmResetOpen] = useState(false)
   const fileInputRef = useRef(null)
   
   const handleExport = (format) => {
@@ -80,7 +82,7 @@ const Header = () => {
         {/* Reset All Button */}
         <button 
           className="icon-btn" 
-          onClick={resetAll}
+          onClick={() => setIsConfirmResetOpen(true)}
           title={translations[lang].resetMonth}
         >
           🗑️
@@ -138,6 +140,16 @@ const Header = () => {
         accept=".json"
         onChange={handleFileChange}
         style={{ display: 'none' }}
+      />
+      <ConfirmModal
+        isOpen={isConfirmResetOpen}
+        onClose={() => setIsConfirmResetOpen(false)}
+        onConfirm={() => {
+          resetAll()
+          setIsConfirmResetOpen(false)
+        }}
+        title={lang === 'en' ? 'Reset All Data' : 'Resetar Todos os Dados'}
+        message={lang === 'en' ? 'Are you sure you want to reset ALL data? This will clear everything including your name. This cannot be undone.' : 'Tem certeza que deseja resetar TODOS os dados? Isso irá limpar tudo incluindo seu nome. Esta ação não pode ser desfeita.'}
       />
     </header>
   )

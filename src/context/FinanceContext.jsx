@@ -398,16 +398,14 @@ export const FinanceProvider = ({ children }) => {
   }
   
   const resetAll = () => {
-    if (window.confirm(lang === 'en' ? 'Are you sure you want to reset ALL data? This will clear everything including your name. This cannot be undone.' : 'Tem certeza que deseja resetar TODOS os dados? Isso irá limpar tudo incluindo seu nome. Esta ação não pode ser desfeita.')) {
-      // Clear all state
-      setUserName(null)
-      setMonthlyData({})
-      setCategoriesGoals(DEFAULT_CATEGORIES)
-      setFinancialGoals([])
-      
-      // Clear all localStorage
-      localStorage.clear()
-    }
+    // Clear all state
+    setUserName(null)
+    setMonthlyData({})
+    setCategoriesGoals(DEFAULT_CATEGORIES)
+    setFinancialGoals([])
+    
+    // Clear all localStorage
+    localStorage.clear()
   }
   
   // Category Management Functions (Phase 1)

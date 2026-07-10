@@ -12,6 +12,43 @@
   gap: var(--spacing-sm); /* 16px instead of 32px */
 }
 
+/* Budget Top Bar */
+.budget-top-bar {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: var(--spacing-md);
+  align-items: stretch;
+  margin-bottom: 0;
+}
+
+.manage-categories-btn {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.manage-categories-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+@media (max-width: 1024px) {
+  .budget-top-bar {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+}
+
 /* Budget Layout - 2 Columns: Left (Resumo + Investments) + Right (Metas) */
 .budget-layout {
   display: grid;
