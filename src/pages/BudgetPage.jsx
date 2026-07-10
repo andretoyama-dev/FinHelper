@@ -478,7 +478,8 @@ const BudgetPage = () => {
             <div className="goals-list">
               {categoriesGoals.map(cat => {
                 const budget = calculateBudget(monthlyIncome, cat.percentage)
-                const spent = categorySpent[cat.id] || 0
+                // For Liberdade financeira, use totalInvestments to stay consistent with Resumo
+                const spent = cat.id === 'liberdade' ? totalInvestments : (categorySpent[cat.id] || 0)
                 const utilization = calculateUtilization(spent, budget)
                 
                 return (

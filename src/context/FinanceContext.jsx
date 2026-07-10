@@ -108,8 +108,11 @@ export const FinanceProvider = ({ children }) => {
     const manualSpent = currentData.manualCategorySpent || {}
     
     categoriesGoals.forEach(cat => {
-      // If category has subcategories, sum them
-      if (cat.subcategories && cat.subcategories.length > 0) {
+      // For "liberdade" category, always use investments total
+      if (cat.id === 'liberdade') {
+        spent[cat.id] = (currentData.investments || []).reduce((sum, inv) => sum + (inv.amount || 0), 0)
+      } else if (cat.subcategories && cat.subcategories.length > 0) {
+        // If category has subcategories, sum them
         spent[cat.id] = cat.subcategories.reduce((sum, sub) => sum + Number(sub.value || 0), 0)
       } else {
         // Otherwise use manual value if set, or calculate from expenses
@@ -119,7 +122,7 @@ export const FinanceProvider = ({ children }) => {
       }
     })
     return spent
-  }, [expenses, categoriesGoals, currentData.manualCategorySpent])
+  }, [expenses, categoriesGoals, currentData.manualCategorySpent, currentData.investments])
   
   
   const totalExpenses = useMemo(() => {
@@ -259,8 +262,9 @@ export const FinanceProvider = ({ children }) => {
   
   // Investment management functions
   const addInvestment = (name, amount) => {
+    const invId = `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     const newInvestment = {
-      id: `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: invId,
       name,
       amount,
       createdAt: new Date().toISOString()
@@ -273,6 +277,24 @@ export const FinanceProvider = ({ children }) => {
         investments: [...(currentData.investments || []), newInvestment]
       }
     }))
+    
+    // Sync: also add as subcategory in "liberdade" category
+    setCategoriesGoals(prev => prev.map(cat => 
+      cat.id === 'liberdade' 
+        ? { 
+            ...cat, 
+            subcategories: [
+              ...(cat.subcategories || []).filter(sub => sub.linkedInvestmentId !== invId), 
+              {
+                id: `sub_${invId}`,
+                name,
+                value: amount,
+                linkedInvestmentId: invId
+              }
+            ]
+          }
+        : cat
+    ))
   }
   
   const updateInvestment = (investmentId, updates) => {
@@ -285,6 +307,20 @@ export const FinanceProvider = ({ children }) => {
         )
       }
     }))
+    
+    // Sync: also update linked subcategory in "liberdade"
+    setCategoriesGoals(prev => prev.map(cat =>
+      cat.id === 'liberdade'
+        ? {
+            ...cat,
+            subcategories: (cat.subcategories || []).map(sub =>
+              sub.linkedInvestmentId === investmentId
+                ? { ...sub, name: updates.name !== undefined ? updates.name : sub.name, value: updates.amount !== undefined ? updates.amount : sub.value }
+                : sub
+            )
+          }
+        : cat
+    ))
   }
   
   const removeInvestment = (investmentId) => {
@@ -295,6 +331,16 @@ export const FinanceProvider = ({ children }) => {
         investments: (currentData.investments || []).filter(inv => inv.id !== investmentId)
       }
     }))
+    
+    // Sync: also remove linked subcategory from "liberdade"
+    setCategoriesGoals(prev => prev.map(cat =>
+      cat.id === 'liberdade'
+        ? {
+            ...cat,
+            subcategories: (cat.subcategories || []).filter(sub => sub.linkedInvestmentId !== investmentId)
+          }
+        : cat
+    ))
   }
   
   // Debt management functions
@@ -352,17 +398,15 @@ export const FinanceProvider = ({ children }) => {
   }
   
   const resetAll = () => {
-    if (window.confirm(lang === 'en' ? 'Are you sure you want to reset all data for the current month? This cannot be undone.' : 'Tem certeza que deseja resetar todos os dados do mês atual? Esta ação não pode ser desfeita.')) {
-      setMonthlyData(prev => ({
-        ...prev,
-        [currentMonthKey]: {
-          income: 0,
-          expenses: [],
-          investments: [],
-          debts: [],
-          manualCategorySpent: {}
-        }
-      }))
+    if (window.confirm(lang === 'en' ? 'Are you sure you want to reset ALL data? This will clear everything including your name. This cannot be undone.' : 'Tem certeza que deseja resetar TODOS os dados? Isso irá limpar tudo incluindo seu nome. Esta ação não pode ser desfeita.')) {
+      // Clear all state
+      setUserName(null)
+      setMonthlyData({})
+      setCategoriesGoals(DEFAULT_CATEGORIES)
+      setFinancialGoals([])
+      
+      // Clear all localStorage
+      localStorage.clear()
     }
   }
   
@@ -463,24 +507,65 @@ export const FinanceProvider = ({ children }) => {
 
   // Subcategory management functions
   const addSubcategory = (categoryId, subcategoryData) => {
-    setCategoriesGoals(prev => prev.map(cat => 
-      cat.id === categoryId 
-        ? { 
-            ...cat, 
-            subcategories: [
-              ...(cat.subcategories || []), 
-              {
-                id: `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                name: subcategoryData.name,
-                value: Number(subcategoryData.value || 0)
-              }
-            ]
-          }
-        : cat
-    ))
+    const subId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    
+    // If adding to "liberdade", also create an investment
+    if (categoryId === 'liberdade') {
+      const invId = `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      
+      setMonthlyData(prev => ({
+        ...prev,
+        [currentMonthKey]: {
+          ...currentData,
+          investments: [...(currentData.investments || []), {
+            id: invId,
+            name: subcategoryData.name,
+            amount: Number(subcategoryData.value || 0),
+            createdAt: new Date().toISOString()
+          }]
+        }
+      }))
+      
+      setCategoriesGoals(prev => prev.map(cat => 
+        cat.id === categoryId 
+          ? { 
+              ...cat, 
+              subcategories: [
+                ...(cat.subcategories || []), 
+                {
+                  id: subId,
+                  name: subcategoryData.name,
+                  value: Number(subcategoryData.value || 0),
+                  linkedInvestmentId: invId
+                }
+              ]
+            }
+          : cat
+      ))
+    } else {
+      setCategoriesGoals(prev => prev.map(cat => 
+        cat.id === categoryId 
+          ? { 
+              ...cat, 
+              subcategories: [
+                ...(cat.subcategories || []), 
+                {
+                  id: subId,
+                  name: subcategoryData.name,
+                  value: Number(subcategoryData.value || 0)
+                }
+              ]
+            }
+          : cat
+      ))
+    }
   }
 
   const updateSubcategory = (categoryId, subcategoryId, updates) => {
+    // Find the subcategory to check if it's linked to an investment
+    const category = categoriesGoals.find(c => c.id === categoryId)
+    const subcategory = category?.subcategories?.find(s => s.id === subcategoryId)
+    
     setCategoriesGoals(prev => prev.map(cat =>
       cat.id === categoryId
         ? {
@@ -493,9 +578,32 @@ export const FinanceProvider = ({ children }) => {
           }
         : cat
     ))
+    
+    // If updating a liberdade subcategory, sync to investment
+    if (categoryId === 'liberdade' && subcategory?.linkedInvestmentId) {
+      const invUpdates = {}
+      if (updates.name !== undefined) invUpdates.name = updates.name
+      if (updates.value !== undefined) invUpdates.amount = Number(updates.value)
+      
+      if (Object.keys(invUpdates).length > 0) {
+        setMonthlyData(prev => ({
+          ...prev,
+          [currentMonthKey]: {
+            ...currentData,
+            investments: (currentData.investments || []).map(inv =>
+              inv.id === subcategory.linkedInvestmentId ? { ...inv, ...invUpdates } : inv
+            )
+          }
+        }))
+      }
+    }
   }
 
   const removeSubcategory = (categoryId, subcategoryId) => {
+    // Find the subcategory to check if it's linked to an investment
+    const category = categoriesGoals.find(c => c.id === categoryId)
+    const subcategory = category?.subcategories?.find(s => s.id === subcategoryId)
+    
     setCategoriesGoals(prev => prev.map(cat =>
       cat.id === categoryId
         ? {
@@ -504,6 +612,17 @@ export const FinanceProvider = ({ children }) => {
           }
         : cat
     ))
+    
+    // If removing a liberdade subcategory, also remove the linked investment
+    if (categoryId === 'liberdade' && subcategory?.linkedInvestmentId) {
+      setMonthlyData(prev => ({
+        ...prev,
+        [currentMonthKey]: {
+          ...currentData,
+          investments: (currentData.investments || []).filter(inv => inv.id !== subcategory.linkedInvestmentId)
+        }
+      }))
+    }
   }
   
   // Persist current month's calculated category spent AND names to snapshot

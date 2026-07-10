@@ -7,7 +7,9 @@ const SubcategoryRow = ({ subcategory, onUpdate, onDelete }) => {
   const [editValue, setEditValue] = useState(subcategory.value)
 
   const handleSave = () => {
-    const newValue = parseFloat(editValue) || 0
+    // Replace comma with dot for proper float parsing (Brazilian format)
+    const cleanValue = String(editValue).replace(',', '.')
+    const newValue = parseFloat(cleanValue) || 0
     onUpdate(subcategory.id, { value: newValue })
     setIsEditing(false)
   }

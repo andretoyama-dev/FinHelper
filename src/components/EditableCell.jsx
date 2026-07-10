@@ -14,9 +14,8 @@ const EditableCell = ({ value, onSave, categoryId }) => {
   }, [isEditing])
   
   const handleDoubleClick = () => {
-    // Format for editing: convert 1750.50 to "175050"
-    const cents = Math.round(value * 100)
-    setTempValue(cents.toString())
+    // Show the current value as a simple number for editing
+    setTempValue(value > 0 ? value.toString().replace('.', ',') : '')
     setIsEditing(true)
   }
   
@@ -48,15 +47,16 @@ const EditableCell = ({ value, onSave, categoryId }) => {
   }
   
   const handleChange = (e) => {
-    // Only allow digits
-    const value = e.target.value.replace(/\D/g, '')
-    setTempValue(value)
+    // Allow digits, comma and dot for decimal input
+    const val = e.target.value.replace(/[^0-9.,]/g, '')
+    setTempValue(val)
   }
   
   const parseToNumber = (val) => {
-    const cleanValue = val.replace(/\D/g, '')
-    if (cleanValue === '') return 0
-    return parseFloat(cleanValue) / 100
+    if (!val || val.trim() === '') return 0
+    // Replace comma with dot for parseFloat
+    const cleanValue = val.replace(',', '.')
+    return parseFloat(cleanValue) || 0
   }
   
   const formatCurrency = (val) => {
@@ -66,23 +66,17 @@ const EditableCell = ({ value, onSave, categoryId }) => {
     }).format(val)
   }
   
-  const formatInputDisplay = (val) => {
-    if (val === '' || val === '0') return ''
-    const number = parseToNumber(val)
-    return formatCurrency(number)
-  }
-  
   if (isEditing) {
     return (
       <input
         ref={inputRef}
         type="text"
-        value={formatInputDisplay(tempValue)}
+        value={tempValue}
         onChange={handleChange}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
         className="editable-input"
-        placeholder="R$ 0,00"
+        placeholder="0,00"
       />
     )
   }
