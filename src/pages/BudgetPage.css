@@ -874,7 +874,7 @@
 .non-editable-cell {
   padding: var(--spacing-xs) var(--spacing-sm);
   font-weight: 600;
-  color: var(--text-primary);
+  color: inherit;
   text-align: left;
 }
 

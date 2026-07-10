@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { formatCurrency } from '../utils/calculations'
+import ConfirmModal from './ConfirmModal'
 import './SubcategoryRow.css'
 
 const SubcategoryRow = ({ subcategory, onUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(subcategory.value)
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
 
   const handleSave = () => {
     // Replace comma with dot for proper float parsing (Brazilian format)
@@ -24,9 +26,12 @@ const SubcategoryRow = ({ subcategory, onUpdate, onDelete }) => {
   }
 
   const handleDelete = () => {
-    if (window.confirm(`Deseja remover a subcategoria "${subcategory.name}"?`)) {
-      onDelete(subcategory.id)
-    }
+    setIsConfirmDeleteOpen(true)
+  }
+
+  const confirmDelete = () => {
+    onDelete(subcategory.id)
+    setIsConfirmDeleteOpen(false)
   }
 
   return (
@@ -63,6 +68,14 @@ const SubcategoryRow = ({ subcategory, onUpdate, onDelete }) => {
       >
         🗑️
       </button>
+
+      <ConfirmModal
+        isOpen={isConfirmDeleteOpen}
+        onClose={() => setIsConfirmDeleteOpen(false)}
+        onConfirm={confirmDelete}
+        title="Excluir Subcategoria"
+        message={`Tem certeza que deseja excluir a subcategoria "${subcategory.name}"?`}
+      />
     </div>
   )
 }
