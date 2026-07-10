@@ -1,6 +1,7 @@
 import { useFinance } from '../context/FinanceContext'
 import { formatCurrency, getMonthYearString } from '../utils/calculations'
 import { translations } from '../utils/translations'
+import { ChevronLeftIcon, ChevronRightIcon } from './Icons'
 import './MonthSelector.css'
 
 const MonthSelector = () => {
@@ -19,7 +20,7 @@ const MonthSelector = () => {
           onClick={() => changeMonth(-1)}
           title={lang === 'en' ? 'Previous Month' : 'Mês Anterior'}
         >
-          ‹
+          <ChevronLeftIcon size={20} />
         </button>
         
         <span className="month-display">
@@ -31,7 +32,7 @@ const MonthSelector = () => {
           onClick={() => changeMonth(1)}
           title={lang === 'en' ? 'Next Month' : 'Próximo Mês'}
         >
-          ›
+          <ChevronRightIcon size={20} />
         </button>
       </div>
       

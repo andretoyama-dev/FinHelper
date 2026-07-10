@@ -237,7 +237,7 @@
 .table-header,
 .table-row {
   display: grid;
-  grid-template-columns: minmax(160px, 1.8fr) 1fr 1fr 0.8fr 0.7fr;
+  grid-template-columns: minmax(140px, 1.8fr) 1.1fr 1.1fr 1.1fr 0.9fr 1.2fr;
   align-items: center;
   padding: 6px 0; /* Compact padding */
   gap: var(--spacing-xs); /* Smaller gap */
@@ -270,22 +270,19 @@
 .table-row {
   transition: all var(--transition-fast);
   border-radius: var(--radius-sm);
+  border-left: 3px solid transparent;
 }
 
 .table-row:hover {
   background: rgba(255, 255, 255, 0.03);
 }
 
-.table-row.status-ok {
-  color: var(--text-primary);
+.table-row.row-warning {
+  border-left-color: var(--warning);
 }
 
-.table-row.status-warning {
-  color: var(--warning);
-}
-
-.table-row.status-danger {
-  color: var(--danger);
+.table-row.row-danger {
+  border-left-color: var(--danger);
 }
 
 .table-row > div {
@@ -294,7 +291,7 @@
 
 .table-row > div:first-child {
   text-align: left;
-  padding-left: 0;
+  padding-left: 4px;
 }
 
 .table-row > div:not(:first-child) {
@@ -322,59 +319,32 @@
 }
 
 .table-footer {
-  margin-top: var(--spacing-sm); /* Reduced */
-  padding-top: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
   border-top: 2px solid var(--border-color);
-  font-weight: 700;
-  font-size: 1rem;
-  display: flex;
-  gap: var(--spacing-lg);
-  align-items: center;
-  flex-wrap: wrap;
+  padding-top: var(--spacing-xs);
+  overflow: visible;
 }
 
-.table-footer > div:first-child {
+.table-footer-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.8fr) 1.1fr 1.1fr 1.1fr 0.9fr 1.2fr;
+  align-items: center;
+  font-weight: 700;
   font-size: 0.875rem;
-  color: var(--text-secondary);
 }
 
-.footer-summary {
-  display: flex;
-  gap: var(--spacing-lg);
-  align-items: center;
-  flex: 1;
+.table-footer-row > div {
+  padding: var(--spacing-xs);
 }
 
-.footer-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.footer-label {
-  font-size: 0.6875rem; /* Smaller */
+.table-footer-row > div:first-child {
+  text-align: left;
+  padding-left: 0;
   color: var(--text-muted);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
 }
 
-.footer-value {
-  font-size: 1.125rem; /* Reduced */
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.footer-spent {
-  color: var(--success);
-}
-
-.footer-remaining {
-  color: var(--danger);
-}
-
-.footer-utilization {
-  color: var(--text-primary);
+.table-footer-row > div:not(:first-child) {
+  text-align: right;
 }
 
 /* Goals Section */
@@ -985,6 +955,182 @@
   color: var(--accent-primary);
   font-size: 1rem;
   font-weight: 700;
+}
+
+/* Top Horizontal Metrics Overview */
+.monthly-overview-bar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.overview-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.overview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.overview-card.income { border-left: 3px solid var(--accent-primary); }
+.overview-card.expenses { border-left: 3px solid var(--danger); }
+.overview-card.investments { border-left: 3px solid var(--success); }
+.overview-card.debts { border-left: 3px solid var(--warning); }
+.overview-card.remaining { border-left: 3px solid var(--info); }
+
+.overview-card .card-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.overview-card .card-val {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.overview-card.remaining .card-val {
+  color: var(--accent-primary);
+}
+
+/* Cell remaining balance */
+.cell-remaining {
+  font-weight: 600;
+  color: var(--success);
+}
+.cell-remaining.negative {
+  color: var(--danger);
+}
+
+/* Compact and actionable empty states */
+.empty-state-compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.empty-state-compact button {
+  flex-shrink: 0;
+}
+
+/* Bottom Grid for Metas + Dívidas side-by-side */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  align-items: start;
+}
+
+/* Sidebar divider and donut integration */
+.sidebar-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: var(--spacing-md) 0;
+}
+
+.cat-color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+  flex-shrink: 0;
+  margin-right: var(--spacing-xs);
+}
+
+/* Status Badges */
+.status-badge-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.status-badge-ok {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.status-badge-not-started {
+  background: rgba(156, 163, 175, 0.1);
+  color: var(--text-muted);
+  border: 1px solid rgba(156, 163, 175, 0.2);
+}
+
+.status-badge-near-limit {
+  background: rgba(234, 179, 8, 0.1);
+  color: var(--warning);
+  border: 1px solid rgba(234, 179, 8, 0.2);
+}
+
+.status-badge-exceeded {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Responsiveness overrides */
+@media (max-width: 1024px) {
+  .monthly-overview-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .monthly-overview-bar .overview-card.remaining {
+    grid-column: span 2;
+  }
+  .bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .table-header,
+  .table-row,
+  .table-footer-row {
+    grid-template-columns: minmax(120px, 1.5fr) 1fr 1fr 1fr;
+  }
+  .table-header > div:nth-child(5),
+  .table-header > div:nth-child(6),
+  .table-row > div:nth-child(5),
+  .table-row > div:nth-child(6),
+  .table-footer-row > div:nth-child(5),
+  .table-footer-row > div:nth-child(6) {
+    display: none;
+  }
+}
+
+@media (max-width: 500px) {
+  .monthly-overview-bar {
+    grid-template-columns: 1fr;
+  }
+  .monthly-overview-bar .overview-card.remaining {
+    grid-column: span 1;
+  }
 }
 
 

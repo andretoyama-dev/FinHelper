@@ -5,7 +5,6 @@ import { formatCurrency, calculateBudget, calculateUtilization } from '../utils/
 import { translations } from '../utils/translations'
 import Header from '../components/Header'
 import MonthSelector from '../components/MonthSelector'
-import MetricCard from '../components/MetricCard'
 import EditableCell from '../components/EditableCell'
 import InvestmentModal from '../components/InvestmentModal'
 import DebtModal from '../components/DebtModal'
@@ -14,6 +13,8 @@ import SubcategoryModal from '../components/SubcategoryModal'
 import SubcategoryRow from '../components/SubcategoryRow'
 import CategoryManagerModal from '../components/CategoryManagerModal'
 import GoalsSection from '../components/GoalsSection'
+import DonutChart from '../components/DonutChart'
+import { EditIcon, DeleteIcon, PlusIcon, SettingsIcon } from '../components/Icons'
 import './BudgetPage.css'
 
 const BudgetPage = () => {
@@ -186,8 +187,32 @@ const BudgetPage = () => {
             className="manage-categories-btn" 
             onClick={() => setIsCategoryManagerOpen(true)}
           >
-            ⚙️ Gerenciar Categorias
+            <SettingsIcon size={14} /> Gerenciar Categorias
           </button>
+        </div>
+
+        {/* Compact Monthly Overview (Full Width) */}
+        <div className="monthly-overview-bar">
+          <div className="overview-card income">
+            <span className="card-label">{translations[lang].monthlyIncome}</span>
+            <span className="card-val">{formatCurrency(monthlyIncome)}</span>
+          </div>
+          <div className="overview-card expenses">
+            <span className="card-label">{translations[lang].regularExpenses}</span>
+            <span className="card-val">{formatCurrency(totalExpenses - totalInvestments)}</span>
+          </div>
+          <div className="overview-card investments">
+            <span className="card-label">{translations[lang].investmentsTitle}</span>
+            <span className="card-val">{formatCurrency(totalInvestments)}</span>
+          </div>
+          <div className="overview-card debts">
+            <span className="card-label">{translations[lang].paidDebts}</span>
+            <span className="card-val">{formatCurrency(totalPaidDebts)}</span>
+          </div>
+          <div className="overview-card remaining">
+            <span className="card-label">{translations[lang].availableBalance}</span>
+            <span className="card-val">{formatCurrency(monthlyIncome - totalExpenses - totalPaidDebts)}</span>
+          </div>
         </div>
         
         {/* Layout Principal: 2 Colunas */}
@@ -200,11 +225,12 @@ const BudgetPage = () => {
               
               <div className="summary-table">
                 <div className="table-header">
-                  <div>Budget</div>
-                  <div>Valor Gasto</div>
-                  <div>Devo gastar</div>
+                  <div>Categoria</div>
+                  <div>{translations[lang].planned}</div>
+                  <div>{translations[lang].actual}</div>
+                  <div>{translations[lang].remainingCat}</div>
                   <div>Utilizado</div>
-                  <div>Total</div>
+                  <div>Status</div>
                 </div>
                 
                 {categoriesGoals.map(cat => {
@@ -212,32 +238,48 @@ const BudgetPage = () => {
                   // For Liberdade financeira, use totalInvestments instead of manual spent
                   const spent = cat.id === 'liberdade' ? totalInvestments : (categorySpent[cat.id] || 0)
                   const utilization = calculateUtilization(spent, budget)
-                  const percentOfTotal = monthlyIncome > 0 ? (spent / monthlyIncome) * 100 : 0
+                  const remaining = budget - spent
                   const isExpanded = expandedCategories[cat.id]
                   const hasSubcategories = cat.subcategories && cat.subcategories.length > 0
                   
-                  let statusClass = 'status-ok'
-                  if (utilization > 100) statusClass = 'status-danger'
-                  else if (utilization > 80) statusClass = 'status-warning'
+                  let statusClass = 'status-badge-ok'
+                  let statusText = translations[lang].statusOnTrack
+                  let rowHighlight = ''
+
+                  if (spent === 0) {
+                    statusClass = 'status-badge-not-started'
+                    statusText = translations[lang].statusNotStarted
+                  } else if (utilization > 100) {
+                    statusClass = 'status-badge-exceeded'
+                    statusText = translations[lang].statusExceeded
+                    rowHighlight = 'row-danger'
+                  } else if (utilization > 80) {
+                    statusClass = 'status-badge-near-limit'
+                    statusText = translations[lang].statusNearLimit
+                    rowHighlight = 'row-warning'
+                  }
                   
                   return (
                     <div key={cat.id} className="category-wrapper">
                       {/* Main category row */}
-                      <div className={`table-row ${statusClass}`}>
+                      <div className={`table-row ${rowHighlight}`}>
                         {/* Category name with chevron inside */}
                         <div 
                           className="row-label clickable"
                           onClick={() => toggleCategory(cat.id)}
                           title={isExpanded ? "Recolher" : "Expandir"}
                         >
-                          <button className="chevron-inline">
+                          <span className="chevron-inline">
                             {isExpanded ? '▼' : '▶'}
-                          </button>
+                          </span>
                           <span className="cat-color" style={{ backgroundColor: cat.color }} />
-                          {cat.name}
+                          {translations[lang].categories[cat.id] || cat.name}
                         </div>
                         
-                        {/* Valor Gasto - read-only if has subcategories or is Liberdade */}
+                        {/* Planejado (Planned/Budget) */}
+                        <div>{formatCurrency(budget)}</div>
+
+                        {/* Realizado (Actual/Spent) - read-only if has subcategories or is Liberdade */}
                         {cat.id === 'liberdade' || hasSubcategories ? (
                           <div className="non-editable-cell">{formatCurrency(spent)}</div>
                         ) : (
@@ -247,10 +289,21 @@ const BudgetPage = () => {
                             categoryId={cat.id}
                           />
                         )}
+
+                        {/* Restante */}
+                        <div className={`cell-remaining ${remaining < 0 ? 'negative' : ''}`}>
+                          {formatCurrency(remaining)}
+                        </div>
                         
-                        <div>{formatCurrency(budget)}</div>
+                        {/* Utilizado */}
                         <div className="utilization">{utilization.toFixed(1)}%</div>
-                        <div>{percentOfTotal.toFixed(1)}%</div>
+
+                        {/* Status badge */}
+                        <div>
+                          <span className={`status-badge-indicator ${statusClass}`}>
+                            {statusText}
+                          </span>
+                        </div>
                       </div>
                       
                       {/* Expanded subcategories row (full width) */}
@@ -277,7 +330,7 @@ const BudgetPage = () => {
                                 className="btn btn-secondary btn-sm"
                                 onClick={() => handleAddSubcategory(cat)}
                               >
-                                + Adicionar subcategoria
+                                <PlusIcon size={12} /> Adicionar subcategoria
                               </button>
                               
                               {hasSubcategories && (
@@ -295,19 +348,17 @@ const BudgetPage = () => {
                 })}
                 
                 <div className="table-footer">
-                  <div className="footer-summary">
-                    <div className="footer-item">
-                      <span className="footer-label">Total gastos</span>
-                      <span className="footer-value footer-spent">{formatCurrency(totalExpenses)}</span>
+                  <div className="table-footer-row">
+                    <div className="footer-cell-label">Total</div>
+                    <div>{formatCurrency(monthlyIncome)}</div>
+                    <div>{formatCurrency(totalExpenses)}</div>
+                    <div className={`cell-remaining ${monthlyIncome - totalExpenses < 0 ? 'negative' : ''}`}>
+                      {formatCurrency(monthlyIncome - totalExpenses)}
                     </div>
-                    <div className="footer-item">
-                      <span className="footer-label">Total a gastar</span>
-                      <span className="footer-value footer-remaining">{formatCurrency(monthlyIncome)}</span>
+                    <div className="footer-cell-utilization">
+                      {monthlyIncome > 0 ? ((totalExpenses / monthlyIncome) * 100).toFixed(1) : 0}%
                     </div>
-                    <div className="footer-item">
-                      <span className="footer-label">Utilizado</span>
-                      <span className="footer-value footer-utilization">{totalExpenses > 0 ? ((totalExpenses / monthlyIncome) * 100).toFixed(1) : 0}%</span>
-                    </div>
+                    <div></div>
                   </div>
                 </div>
               </div>
@@ -317,14 +368,17 @@ const BudgetPage = () => {
             <div className="budget-section investments-section">
               <div className="section-header">
                 <h2>Liberdade Financeira</h2>
-                <button className="btn btn-primary btn-sm" onClick={handleAddInvestment}>
-                  + Adicionar investimento
+                <button className="btn btn-secondary btn-sm" onClick={handleAddInvestment}>
+                  <PlusIcon size={14} /> Adicionar investimento
                 </button>
               </div>
               
               {investments.length === 0 ? (
-                <div className="empty-state">
-                  <p>Você ainda não cadastrou investimentos.</p>
+                <div className="empty-state-compact">
+                  <span>📈 Nenhum investimento cadastrado ainda.</span>
+                  <button className="btn btn-secondary btn-sm" onClick={handleAddInvestment}>
+                    Começar agora
+                  </button>
                 </div>
               ) : (
                 <>
@@ -350,14 +404,14 @@ const BudgetPage = () => {
                                 onClick={() => handleEditInvestment(inv)}
                                 title="Editar"
                               >
-                                ✏️
+                                <EditIcon size={14} />
                               </button>
                               <button 
                                 className="btn-delete"
                                 onClick={() => handleDeleteInvestment(inv)}
                                 title="Excluir"
                               >
-                                🗑️
+                                <DeleteIcon size={14} />
                               </button>
                             </div>
                           </div>
@@ -374,103 +428,108 @@ const BudgetPage = () => {
               )}
             </div>
             
-            {/* Financial Goals Section */}
-            <GoalsSection />
+            {/* Seções Inferiores: Objetivos e Dívidas Lado a Lado no Desktop */}
+            <div className="bottom-grid">
+              <GoalsSection />
 
-            {/* Dívidas */}
-            <div className="budget-section debts-section">
-              <div className="section-header">
-                <h2>Dívidas</h2>
-                <button className="btn btn-primary btn-sm" onClick={handleAddDebt}>
-                  + Adicionar dívida
-                </button>
-              </div>
-              
-              {debts.length === 0 ? (
-                <div className="empty-state">
-                  <p>Nenhuma dívida cadastrada.</p>
+              {/* Dívidas */}
+              <div className="budget-section debts-section">
+                <div className="section-header">
+                  <h2>Dívidas</h2>
+                  <button className="btn btn-secondary btn-sm" onClick={handleAddDebt}>
+                    <PlusIcon size={14} /> Adicionar dívida
+                  </button>
                 </div>
-              ) : (
-                <>
-                  <div className="debts-list">
-                    <div className="debts-table">
-                      <div className="table-header">
-                        <div>Nome</div>
-                        <div>Valor</div>
-                        <div>Vencimento</div>
-                        <div>Status</div>
-                        <div></div>
-                      </div>
-                      
-                      {debts.map(debt => {
-                        const dueDate = new Date(debt.dueDate)
-                        const isOverdue = !debt.isPaid && dueDate < new Date()
+                
+                {debts.length === 0 ? (
+                  <div className="empty-state-compact">
+                    <span>💸 Nenhuma dívida cadastrada ainda.</span>
+                    <button className="btn btn-secondary btn-sm" onClick={handleAddDebt}>
+                      Começar agora
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="debts-list">
+                      <div className="debts-table">
+                        <div className="table-header">
+                          <div>Nome</div>
+                          <div>Valor</div>
+                          <div>Vencimento</div>
+                          <div>Status</div>
+                          <div></div>
+                        </div>
                         
-                        return (
-                          <div key={debt.id} className={`table-row ${debt.isPaid ? 'paid' : ''}`}>
-                            <div>{debt.name}</div>
-                            <div>{formatCurrency(debt.amount)}</div>
-                            <div>{dueDate.toLocaleDateString('pt-BR')}</div>
-                            <div>
-                              <label className="debt-status-toggle">
-                                <input
-                                  type="checkbox"
-                                  checked={debt.isPaid}
-                                  onChange={() => toggleDebtPaid(debt.id)}
-                                />
-                                <span className={`status-badge ${debt.isPaid ? 'paid' : isOverdue ? 'overdue' : 'pending'}`}>
-                                  {debt.isPaid ? '✓ Pago' : isOverdue ? '⚠ Atrasado' : '⏳ Pendente'}
-                                </span>
-                              </label>
+                        {debts.map(debt => {
+                          const dueDate = new Date(debt.dueDate)
+                          const isOverdue = !debt.isPaid && dueDate < new Date()
+                          
+                          return (
+                            <div key={debt.id} className={`table-row ${debt.isPaid ? 'paid' : ''}`}>
+                              <div>{debt.name}</div>
+                              <div>{formatCurrency(debt.amount)}</div>
+                              <div>{dueDate.toLocaleDateString('pt-BR')}</div>
+                              <div>
+                                <label className="debt-status-toggle">
+                                  <input
+                                    type="checkbox"
+                                    checked={debt.isPaid}
+                                    onChange={() => toggleDebtPaid(debt.id)}
+                                  />
+                                  <span className={`status-badge ${debt.isPaid ? 'paid' : isOverdue ? 'overdue' : 'pending'}`}>
+                                    {debt.isPaid ? '✓' : isOverdue ? '⚠' : '⏳'} {debt.isPaid ? translations[lang].paid : isOverdue ? (lang === 'en' ? 'Overdue' : 'Atrasada') : translations[lang].unpaid}
+                                  </span>
+                                </label>
+                              </div>
+                              <div className="debt-actions">
+                                <button 
+                                  onClick={() => handleEditDebt(debt)}
+                                  title="Editar"
+                                >
+                                  <EditIcon size={14} />
+                                </button>
+                                <button 
+                                  className="btn-delete"
+                                  onClick={() => handleDeleteDebt(debt)}
+                                  title="Excluir"
+                                >
+                                  <DeleteIcon size={14} />
+                                </button>
+                              </div>
                             </div>
-                            <div className="debt-actions">
-                              <button 
-                                onClick={() => handleEditDebt(debt)}
-                                title="Editar"
-                              >
-                                ✏️
-                              </button>
-                              <button 
-                                className="btn-delete"
-                                onClick={() => handleDeleteDebt(debt)}
-                                title="Excluir"
-                              >
-                                🗑️
-                              </button>
-                            </div>
-                          </div>
-                        )
-                      })}
+                          )
+                        })}
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="debts-footer">
-                    <div className="footer-stats">
-                      <span className="footer-stat">
-                        <span className="stat-label">Pagas:</span>
-                        <span className="stat-value paid">{formatCurrency(totalPaidDebts)}</span>
-                      </span>
-                      <span className="footer-stat">
-                        <span className="stat-label">Pendentes:</span>
-                        <span className="stat-value pending">{formatCurrency(totalUnpaidDebts)}</span>
-                      </span>
+                    
+                    <div className="debts-footer">
+                      <div className="footer-stats">
+                        <span className="footer-stat">
+                          <span className="stat-label">Pagas:</span>
+                          <span className="stat-value paid">{formatCurrency(totalPaidDebts)}</span>
+                        </span>
+                        <span className="footer-stat">
+                          <span className="stat-label">Pendentes:</span>
+                          <span className="stat-value pending">{formatCurrency(totalUnpaidDebts)}</span>
+                        </span>
+                      </div>
+                      <div className="footer-total">
+                        <span className="footer-label">Total</span>
+                        <span className="footer-value">{formatCurrency(totalDebts)}</span>
+                      </div>
                     </div>
-                    <div className="footer-total">
-                      <span className="footer-label">Total</span>
-                      <span className="footer-value">{formatCurrency(totalDebts)}</span>
-                    </div>
-                  </div>
-                </>
-              )}
+                  </>
+                )}
+              </div>
             </div>
           </div>
           
-          {/* Coluna 2: Metas */}
+          {/* Coluna Direita: Alocação do Orçamento */}
           <div className="budget-section goals-section">
             <div className="section-header">
-              <h2>{translations[lang].goals}</h2>
-              <button className="btn btn-secondary" onClick={() => navigate('/goals')}>
-                {translations[lang].edit}
+              <h2>{translations[lang].budgetDistribution}</h2>
+              <button className="btn btn-secondary btn-sm" onClick={() => navigate('/goals')}>
+                <SettingsIcon size={14} /> {translations[lang].edit}
               </button>
             </div>
             
@@ -485,7 +544,7 @@ const BudgetPage = () => {
                   <div key={cat.id} className="goal-item">
                     <div className="goal-header">
                       <span className="goal-name">
-                        <span className="cat-color" style={{ backgroundColor: cat.color }} />
+                        <span className="cat-color-dot" style={{ backgroundColor: cat.color }} />
                         {translations[lang].categories[cat.id] || cat.name}
                       </span>
                       <span className={`goal-percentage ${utilization > 100 ? 'over-budget' : ''}`}>
@@ -512,6 +571,9 @@ const BudgetPage = () => {
                 )
               })}
             </div>
+
+            <div className="sidebar-divider" />
+            <DonutChart categories={categoriesGoals} />
           </div>
         </div>
         

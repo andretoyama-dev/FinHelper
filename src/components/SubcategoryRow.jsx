@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { formatCurrency } from '../utils/calculations'
 import ConfirmModal from './ConfirmModal'
+import { DeleteIcon } from './Icons'
 import './SubcategoryRow.css'
 
 const SubcategoryRow = ({ subcategory, onUpdate, onDelete }) => {
@@ -66,7 +67,7 @@ const SubcategoryRow = ({ subcategory, onUpdate, onDelete }) => {
         className="subcategory-delete-btn"
         title="Remover subcategoria"
       >
-        🗑️
+        <DeleteIcon size={14} />
       </button>
 
       <ConfirmModal

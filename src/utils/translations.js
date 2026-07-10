@@ -71,7 +71,20 @@ export const translations = {
     dueDate: "Due Date",
     add: "Add",
     edit: "Edit",
-    delete: "Delete",
+    // Dashboard improvements
+    budgetDistribution: "Budget Allocation",
+    regularExpenses: "Regular Expenses",
+    availableBalance: "Available Balance",
+    paidDebts: "Paid Debts",
+    planned: "Planned",
+    actual: "Actual",
+    remainingCat: "Remaining",
+    status: "Status",
+    statusNotStarted: "Not Started",
+    statusOnTrack: "On Track",
+    statusNearLimit: "Near Limit",
+    statusExceeded: "Exceeded",
+    emptyStartNow: "Start Now",
 
     // Categories
     categories: {
@@ -156,6 +169,21 @@ export const translations = {
     add: "Adicionar",
     edit: "Editar",
     delete: "Excluir",
+
+    // Dashboard improvements
+    budgetDistribution: "Alocação Mensal",
+    regularExpenses: "Gastos Regulares",
+    availableBalance: "Saldo Disponível",
+    paidDebts: "Dívidas Pagas",
+    planned: "Planejado",
+    actual: "Realizado",
+    remainingCat: "Restante",
+    status: "Status",
+    statusNotStarted: "Não Iniciado",
+    statusOnTrack: "No Orçamento",
+    statusNearLimit: "Perto do Limite",
+    statusExceeded: "Excedido",
+    emptyStartNow: "Começar agora",
 
     // Categories
     categories: {
