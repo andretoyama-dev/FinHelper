@@ -4,72 +4,72 @@
 }
 
 .welcome-modal-content {
-  max-width: 500px;
+  max-width: 480px;
   width: 90%;
-  padding: var(--spacing-2xl);
+  padding: 24px;
 }
 
 .welcome-header {
   text-align: center;
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: 16px;
 }
 
 .welcome-title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 8px;
 }
 
 .welcome-subtitle {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
   margin: 0;
 }
 
 .welcome-form {
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: 16px;
 }
 
 .welcome-form .form-group {
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: 16px;
 }
 
 .welcome-form label {
   display: block;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 6px;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: var(--text-primary);
 }
 
 .welcome-form input {
   width: 100%;
-  padding: var(--spacing-md) var(--spacing-lg);
-  font-size: 1rem;
+  padding: 8px 16px;
+  font-size: 0.95rem;
   text-align: center;
 }
 
 .btn-large {
   width: 100%;
-  padding: var(--spacing-md) var(--spacing-xl);
-  font-size: 1.125rem;
+  padding: 10px 20px;
+  font-size: 1rem;
   font-weight: 700;
 }
 
 .welcome-features {
-  padding-top: var(--spacing-xl);
+  padding-top: 16px;
   border-top: 1px solid var(--border-color);
 }
 
 .features-title {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -81,20 +81,59 @@
 }
 
 .welcome-features li {
-  padding: var(--spacing-sm) 0;
+  padding: 4px 0;
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 8px;
 }
 
 @media (max-width: 768px) {
   .welcome-modal-content {
-    padding: var(--spacing-xl);
+    padding: 20px;
   }
   
   .welcome-title {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
   }
+}
+
+.welcome-lang-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.welcome-lang-buttons .lang-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+}
+
+.welcome-lang-buttons .lang-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.welcome-lang-buttons .lang-btn.active {
+  background: rgba(212, 162, 89, 0.08);
+  border-color: var(--accent-primary, #d4a259);
+  color: #fff;
+  box-shadow: 
+    0 0 0 1px rgba(212, 162, 89, 0.12),
+    0 4px 12px rgba(212, 162, 89, 0.15);
 }

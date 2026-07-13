@@ -1,4 +1,6 @@
 import { useMemo } from 'react'
+import { useFinance } from '../context/FinanceContext'
+import { translations } from '../utils/translations'
 import { formatCurrency } from '../utils/calculations'
 import { calculateDelta } from '../utils/monthlyAggregation'
 import './CategoryComparisonTable.css'
@@ -10,6 +12,8 @@ const CategoryComparisonTable = ({
   monthLabelA,
   monthLabelB
 }) => {
+  const { lang } = useFinance()
+  
   // Calculate deltas and sort by absolute difference
   const categoryComparisons = useMemo(() => {
     return categoriesGoals.map(cat => {
@@ -30,21 +34,21 @@ const CategoryComparisonTable = ({
   
   return (
     <div className="category-comparison-section">
-      <h3>Comparação por Categoria</h3>
+      <h3>{translations[lang].evolutionPage.categoryTableTitle}</h3>
       <div className="category-comparison-table">
         <div className="table-header">
-          <div>Categoria</div>
+          <div>{translations[lang].categoryLabel}</div>
           <div>{monthLabelA}</div>
           <div>{monthLabelB}</div>
-          <div>Diferença (R$)</div>
-          <div>Diferença (%)</div>
+          <div>{translations[lang].evolutionPage.differenceCurrency}</div>
+          <div>{translations[lang].evolutionPage.differencePercent}</div>
         </div>
         
         {categoryComparisons.map(cat => (
           <div key={cat.id} className="table-row">
             <div className="category-name">
               <span className="cat-color" style={{ backgroundColor: cat.color }} />
-              {cat.name}
+              {translations[lang].categories[cat.id] || cat.name}
             </div>
             <div>{formatCurrency(cat.spentA)}</div>
             <div>{formatCurrency(cat.spentB)}</div>

@@ -2,13 +2,17 @@ import { useState } from 'react'
 import { useFinance } from '../context/FinanceContext'
 import { formatCurrency } from '../utils/calculations'
 import GoalModal from './GoalModal'
+import ConfirmModal from './ConfirmModal'
 import { EditIcon, DeleteIcon, PlusIcon } from './Icons'
+import { translations } from '../utils/translations'
 import './GoalsSection.css'
 
 const GoalsSection = () => {
-  const { financialGoals, deleteGoal } = useFinance()
+  const { financialGoals, deleteGoal, lang } = useFinance()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [goalToEdit, setGoalToEdit] = useState(null)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [goalToDelete, setGoalToDelete] = useState(null)
 
   const handleEdit = (goal) => {
     setGoalToEdit(goal)
@@ -16,9 +20,16 @@ const GoalsSection = () => {
   }
 
   const handleDelete = (id) => {
-    if (confirm('Tem certeza que deseja excluir este objetivo?')) {
-      deleteGoal(id)
+    setGoalToDelete(id)
+    setIsConfirmOpen(true)
+  }
+
+  const confirmDelete = () => {
+    if (goalToDelete) {
+      deleteGoal(goalToDelete)
     }
+    setIsConfirmOpen(false)
+    setGoalToDelete(null)
   }
 
   const handleAdd = () => {
@@ -27,19 +38,19 @@ const GoalsSection = () => {
   }
 
   return (
-    <div className="budget-section financial-goals-section">
+    <div className="budget-section financial-goals-section" id="tour-financial-goals">
       <div className="section-header">
-        <h2>Objetivos Financeiros</h2>
+        <h2>{translations[lang].financialGoalsTitle}</h2>
         <button className="btn btn-secondary btn-sm" onClick={handleAdd}>
-          <PlusIcon size={14} /> Criar objetivo
+          <PlusIcon size={14} /> {translations[lang].createGoal}
         </button>
       </div>
 
       {financialGoals.length === 0 ? (
         <div className="empty-state-compact">
-          <span>🎯 Nenhum objetivo financeiro definido ainda.</span>
+          <span>{translations[lang].noFinancialGoals}</span>
           <button className="btn btn-secondary btn-sm" onClick={handleAdd}>
-            Começar agora
+            {translations[lang].emptyStartNow}
           </button>
         </div>
       ) : (
@@ -54,11 +65,11 @@ const GoalsSection = () => {
                 <div className="goal-header">
                   <h3>{goal.name}</h3>
                   <div className="goal-actions">
-                    <button onClick={() => handleEdit(goal)} title="Editar">
-                      <EditIcon size={14} />
+                    <button onClick={() => handleEdit(goal)} className="action-icon-btn edit" title="Editar">
+                      <EditIcon size={12} />
                     </button>
-                    <button onClick={() => handleDelete(goal.id)} title="Excluir" className="btn-delete">
-                      <DeleteIcon size={14} />
+                    <button onClick={() => handleDelete(goal.id)} className="action-icon-btn delete" title="Excluir">
+                      <DeleteIcon size={12} />
                     </button>
                   </div>
                 </div>
@@ -81,12 +92,12 @@ const GoalsSection = () => {
                   </div>
                   {!isCompleted && (
                     <div className="goal-remaining">
-                      Faltam {formatCurrency(remaining)}
+                      {translations[lang].missingAmount} {formatCurrency(remaining)}
                     </div>
                   )}
                   {isCompleted && (
                     <div className="goal-status-badge">
-                      Concluído! 🎉
+                      {translations[lang].completedGoal}
                     </div>
                   )}
                 </div>
@@ -100,6 +111,14 @@ const GoalsSection = () => {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
         goalToEdit={goalToEdit}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        onClose={() => { setIsConfirmOpen(false); setGoalToDelete(null) }}
+        onConfirm={confirmDelete}
+        title="Excluir Objetivo"
+        message="Tem certeza que deseja excluir este objetivo financeiro?"
       />
     </div>
   )

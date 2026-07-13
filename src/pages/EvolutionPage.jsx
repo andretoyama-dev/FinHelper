@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { useFinance } from '../context/FinanceContext'
 import { aggregateMonthlyData, calculateDelta, formatMonthLabel } from '../utils/monthlyAggregation'
 import { formatCurrency } from '../utils/calculations'
+import { translations } from '../utils/translations'
 import Header from '../components/Header'
 import MonthlyChart from '../components/MonthlyChart'
 import ComparisonCard from '../components/ComparisonCard'
@@ -9,7 +10,7 @@ import CategoryComparisonTable from '../components/CategoryComparisonTable'
 import './EvolutionPage.css'
 
 const EvolutionPage = () => {
-  const { monthlyData, categoriesGoals } = useFinance()
+  const { monthlyData, categoriesGoals, lang } = useFinance()
   const [activeTab, setActiveTab] = useState('evolution')
   const [monthA, setMonthA] = useState('')
   const [monthB, setMonthB] = useState('')
@@ -53,6 +54,8 @@ const EvolutionPage = () => {
       remainingMoney: calculateDelta(dataA.remainingMoney, dataB.remainingMoney)
     }
   }, [dataA, dataB])
+
+  const t = translations[lang] || translations.en
   
   // Empty state
   if (aggregatedData.length === 0) {
@@ -60,10 +63,15 @@ const EvolutionPage = () => {
       <div className="page evolution-page">
         <Header />
         <main className="page-content">
-          <h1>Evolução</h1>
+          <div className="evolution-header">
+            <div className="header-meta">
+              <h1>{t.evolutionPage.title}</h1>
+              <p className="subtitle">{t.evolutionPage.subtitle}</p>
+            </div>
+          </div>
           <div className="empty-state">
-            <p>Ainda não há dados suficientes para visualizar a evolução.</p>
-            <p>Comece adicionando dados em diferentes meses.</p>
+            <p className="primary-empty-msg">{t.evolutionPage.emptyState}</p>
+            <p className="desc">{t.evolutionPage.emptyStateDesc}</p>
           </div>
         </main>
       </div>
@@ -75,22 +83,33 @@ const EvolutionPage = () => {
       <Header />
       
       <main className="page-content">
-        <h1>Evolução</h1>
+        <div className="evolution-header">
+          <div className="header-meta">
+            <h1>{t.evolutionPage.title}</h1>
+            <p className="subtitle">{t.evolutionPage.subtitle}</p>
+          </div>
+        </div>
         
-        {/* Tabs */}
-        <div className="evolution-tabs">
-          <button 
-            className={`tab-btn ${activeTab === 'evolution' ? 'active' : ''}`}
-            onClick={() => setActiveTab('evolution')}
-          >
-            Evolução
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'comparison' ? 'active' : ''}`}
-            onClick={() => setActiveTab('comparison')}
-          >
-            Comparação mês a mês
-          </button>
+        {/* Segmented sliding pill tabs control */}
+        <div className="evolution-tabs-container">
+          <div className="segmented-control">
+            <div 
+              className="segmented-pill-bg" 
+              style={{ transform: activeTab === 'comparison' ? 'translateX(100%)' : 'translateX(0)' }} 
+            />
+            <button 
+              className={`segmented-btn ${activeTab === 'evolution' ? 'active' : ''}`}
+              onClick={() => setActiveTab('evolution')}
+            >
+              {t.evolutionPage.tabEvolution}
+            </button>
+            <button 
+              className={`segmented-btn ${activeTab === 'comparison' ? 'active' : ''}`}
+              onClick={() => setActiveTab('comparison')}
+            >
+              {t.evolutionPage.tabComparison}
+            </button>
+          </div>
         </div>
         
         {/* Evolution Tab */}
@@ -99,32 +118,32 @@ const EvolutionPage = () => {
             <MonthlyChart 
               data={aggregatedData}
               dataKey="totalExpenses"
-              title="Gastos Totais por Mês"
+              title={t.evolutionPage.chartExpenses}
               colorVar="--danger"
             />
             <MonthlyChart 
               data={aggregatedData}
               dataKey="savings"
-              title="Economia por Mês"
+              title={t.evolutionPage.chartSavings}
               colorVar="--success"
             />
             <MonthlyChart 
               data={aggregatedData}
               dataKey="savingsRate"
-              title="Taxa de Economia (%)"
+              title={t.evolutionPage.chartSavingsRate}
               colorVar="--accent-primary"
               isPercentage
             />
             <MonthlyChart 
               data={aggregatedData}
               dataKey="totalInvestments"
-              title="Total Investido por Mês"
+              title={t.evolutionPage.chartInvestments}
               colorVar="--accent-secondary"
             />
             <MonthlyChart 
               data={aggregatedData}
               dataKey="totalDebts"
-              title="Dívidas Totais por Mês"
+              title={t.evolutionPage.chartDebts}
               colorVar="--warning"
             />
           </div>
@@ -136,58 +155,62 @@ const EvolutionPage = () => {
             {/* Month selectors */}
             <div className="month-selectors">
               <div className="selector-group">
-                <label>Mês A</label>
-                <select value={monthA} onChange={(e) => setMonthA(e.target.value)}>
-                  {availableMonths.map(m => (
-                    <option key={m} value={m}>{formatMonthLabel(m)}</option>
-                  ))}
-                </select>
+                <label>{t.evolutionPage.monthA}</label>
+                <div className="select-wrapper">
+                  <select value={monthA} onChange={(e) => setMonthA(e.target.value)}>
+                    {availableMonths.map(m => (
+                      <option key={m} value={m}>{formatMonthLabel(m)}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="selector-group">
-                <label>Mês B</label>
-                <select value={monthB} onChange={(e) => setMonthB(e.target.value)}>
-                  {availableMonths.map(m => (
-                    <option key={m} value={m}>{formatMonthLabel(m)}</option>
-                  ))}
-                </select>
+                <label>{t.evolutionPage.monthB}</label>
+                <div className="select-wrapper">
+                  <select value={monthB} onChange={(e) => setMonthB(e.target.value)}>
+                    {availableMonths.map(m => (
+                      <option key={m} value={m}>{formatMonthLabel(m)}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
             
             {/* Comparison cards */}
             <div className="comparison-cards">
               <ComparisonCard 
-                title="Gastos Totais"
+                title={t.evolutionPage.cardExpenses}
                 valueA={dataA.totalExpenses}
                 valueB={dataB.totalExpenses}
                 delta={deltas.totalExpenses}
               />
               <ComparisonCard 
-                title="Economia Total"
+                title={t.evolutionPage.cardSavings}
                 valueA={dataA.savings}
                 valueB={dataB.savings}
                 delta={deltas.savings}
               />
               <ComparisonCard 
-                title="Taxa de Economia"
+                title={t.evolutionPage.cardSavingsRate}
                 valueA={dataA.savingsRate}
                 valueB={dataB.savingsRate}
                 delta={deltas.savingsRate}
                 isPercentage
               />
               <ComparisonCard 
-                title="Total Investido"
+                title={t.evolutionPage.cardInvestments}
                 valueA={dataA.totalInvestments}
                 valueB={dataB.totalInvestments}
                 delta={deltas.totalInvestments}
               />
               <ComparisonCard 
-                title="Total de Dívidas"
+                title={t.evolutionPage.cardDebts}
                 valueA={dataA.totalDebts}
                 valueB={dataB.totalDebts}
                 delta={deltas.totalDebts}
               />
               <ComparisonCard 
-                title="Dinheiro Restante"
+                title={t.evolutionPage.cardRemaining}
                 valueA={dataA.remainingMoney}
                 valueB={dataB.remainingMoney}
                 delta={deltas.remainingMoney}

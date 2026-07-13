@@ -1,45 +1,69 @@
 .metric-card {
-  background: var(--bg-secondary);
-  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.015);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 18px;
   padding: var(--spacing-sm);
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   min-height: 100px;
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  transition: all var(--transition-base);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   animation: slideDown var(--transition-base);
-  box-shadow: var(--shadow-sm);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  position: relative;
 }
 
 .metric-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4),
+              0 0 18px color-mix(in srgb, var(--glow-color, rgba(255, 255, 255, 0.1)) 12%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .metric-icon {
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-md);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   flex-shrink: 0;
   background: var(--bg-tertiary);
   transition: all var(--transition-fast);
+}
+
+/* Map specific category states to hover glow colors */
+.metric-card-primary {
+  --glow-color: var(--accent-primary);
 }
 
 .metric-card-primary .metric-icon {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
 }
 
+.metric-card-success {
+  --glow-color: var(--success);
+}
+
 .metric-card-success .metric-icon {
   background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 
+.metric-card-warning {
+  --glow-color: var(--warning);
+}
+
 .metric-card-warning .metric-icon {
   background: linear-gradient(135deg, #eab308, #f59e0b);
+}
+
+.metric-card-info {
+  --glow-color: var(--info);
 }
 
 .metric-card-info .metric-icon {

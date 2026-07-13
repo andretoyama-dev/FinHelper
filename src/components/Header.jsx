@@ -1,26 +1,44 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useFinance } from '../context/FinanceContext'
 import { translations } from '../utils/translations'
 import ConfirmModal from './ConfirmModal'
+import { 
+  LayoutDashboard, Target, TrendingUp, Calculator,
+  Download, Upload, FileText, FileSpreadsheet, Database, 
+  Trash2, Globe, MoreHorizontal, HelpCircle,
+  Calendar, Lightbulb, Briefcase
+} from 'lucide-react'
 import './Header.css'
 
 const Header = () => {
   const location = useLocation()
-  const { userName, theme, toggleTheme, exportData, importData, resetAll, lang, setLang } = useFinance()
+  const { userName, exportData, importData, resetAll, lang, setLang } = useFinance()
   
-  const [showExportMenu, setShowExportMenu] = useState(false)
-  const [showImportModal, setShowImportModal] = useState(false)
+  const [showMenu, setShowMenu] = useState(false)
   const [isConfirmResetOpen, setIsConfirmResetOpen] = useState(false)
   const fileInputRef = useRef(null)
+  const menuRef = useRef(null)
   
+  // Close menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const handleExport = (format) => {
     exportData(format)
-    setShowExportMenu(false)
+    setShowMenu(false)
   }
   
   const handleImportClick = () => {
     fileInputRef.current?.click()
+    setShowMenu(false)
   }
   
   const handleFileChange = async (e) => {
@@ -32,108 +50,105 @@ const Header = () => {
       } else {
         alert(`${translations[lang].importError}${result.error}`)
       }
-      setShowImportModal(false)
     }
   }
+
+  const isPt = lang === 'pt'
+
+  const navItems = [
+    { path: '/', icon: LayoutDashboard, label: isPt ? 'Orçamento' : 'Budget', tourId: 'nav-budget' },
+    { path: '/goals', icon: Target, label: isPt ? 'Metas' : 'Goals', tourId: 'nav-goals' },
+    { path: '/calendar', icon: Calendar, label: isPt ? 'Calendário' : 'Calendar', tourId: 'nav-calendar' },
+    { path: '/evolution', icon: TrendingUp, label: isPt ? 'Evolução' : 'Evolution', tourId: 'nav-evolution' },
+    { path: '/portfolio', icon: Briefcase, label: isPt ? 'Carteira' : 'Portfolio', tourId: 'nav-portfolio' },
+    { path: '/interest', icon: Calculator, label: isPt ? 'Calculadora' : 'Calculator', tourId: 'nav-interest' },
+    { path: '/tips', icon: Lightbulb, label: isPt ? 'Dicas' : 'Tips', tourId: 'nav-tips' },
+  ]
   
   return (
     <header className="header">
-      <div className="header-logo-container">
-        <Link to="/">
-          <img 
-            src={`${import.meta.env.BASE_URL}FinHelper_Logo.png`} 
-            alt="FinHelper" 
-            className="header-logo" 
-          />
-        </Link>
-      </div>
+      {/* Navigation */}
       <nav className="header-nav">
-        <Link 
-          to="/" 
-          className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
-        >
-          {translations[lang].budget}
-        </Link>
-        <Link 
-          to="/goals" 
-          className={`nav-link ${location.pathname === '/goals' ? 'active' : ''}`}
-        >
-          {translations[lang].goals}
-        </Link>
-        <Link 
-          to="/evolution" 
-          className={`nav-link ${location.pathname === '/evolution' ? 'active' : ''}`}
-        >
-          {translations[lang].evolution}
-        </Link>
+        {navItems.map(item => {
+          const Icon = item.icon
+          const isActive = location.pathname === item.path
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`nav-pill ${isActive ? 'active' : ''}`}
+              data-tour={item.tourId}
+            >
+              <Icon size={15} strokeWidth={isActive ? 2.2 : 1.8} />
+              <span>{item.label}</span>
+            </Link>
+          )
+        })}
       </nav>
-      
-      <div className="header-actions">
-        {/* Language Switcher */}
+
+      {/* Right Actions */}
+      <div className="header-right">
+        {/* Language Toggle */}
         <button 
-          className="icon-btn lang-toggle-btn" 
+          className="header-btn" 
           onClick={() => setLang(lang === 'en' ? 'pt' : 'en')}
-          title={lang === 'en' ? 'Switch to Portuguese' : 'Mudar para Inglês'}
-          style={{ fontSize: '11px', fontWeight: 'bold', fontFamily: 'monospace', minWidth: '32px' }}
+          title={isPt ? 'Switch to English' : 'Mudar para Português'}
         >
-          {lang === 'en' ? 'PT' : 'EN'}
+          <Globe size={15} />
+          <span>{lang === 'en' ? 'PT' : 'EN'}</span>
         </button>
 
-        {/* Reset All Button */}
-        <button 
-          className="icon-btn" 
-          onClick={() => setIsConfirmResetOpen(true)}
-          title={translations[lang].resetMonth}
-        >
-          🗑️
-        </button>
-        
-        {/* Theme Toggle */}
-        <button 
-          className="icon-btn" 
-          onClick={toggleTheme}
-          title={theme === 'dark' ? translations[lang].lightMode : translations[lang].darkMode}
-        >
-          {theme === 'dark' ? '☀️' : '🌙'}
-        </button>
-        
-        {/* Export Button */}
-        <div className="dropdown">
+        {/* More Menu */}
+        <div className="header-menu-wrapper" ref={menuRef}>
           <button 
-            className="icon-btn"
-            onClick={() => setShowExportMenu(!showExportMenu)}
-            title={translations[lang].exportData}
+            className="header-btn"
+            onClick={() => setShowMenu(!showMenu)}
+            title={isPt ? 'Opções' : 'Options'}
+            data-tour="menu"
           >
-            📥
+            <MoreHorizontal size={16} />
           </button>
-          
-          {showExportMenu && (
-            <div className="dropdown-menu">
+
+          {showMenu && (
+            <div className="header-dropdown">
               <button onClick={() => handleExport('pdf')}>
+                <FileText size={14} />
                 {translations[lang].exportPDF}
               </button>
               <button onClick={() => handleExport('excel')}>
+                <FileSpreadsheet size={14} />
                 {translations[lang].exportExcel}
               </button>
               <button onClick={() => handleExport('json')}>
+                <Database size={14} />
                 {translations[lang].exportJSON}
               </button>
-              <div className="dropdown-divider"></div>
+              <div className="header-dropdown-divider" />
               <button onClick={handleImportClick}>
+                <Upload size={14} />
                 {translations[lang].importJSON}
+              </button>
+              <div className="header-dropdown-divider" />
+              <button className="danger" onClick={() => { setShowMenu(false); setIsConfirmResetOpen(true) }}>
+                <Trash2 size={14} />
+                {isPt ? 'Resetar Dados' : 'Reset Data'}
+              </button>
+              <div className="header-dropdown-divider" />
+              <button onClick={() => { setShowMenu(false); window.__startTour?.() }}>
+                <HelpCircle size={14} />
+                {isPt ? 'Tour Guiado' : 'Guided Tour'}
               </button>
             </div>
           )}
         </div>
-        
-        {/* User Profile */}
-        <div className="user-profile">
-          <span className="user-greeting">{translations[lang].hello}{userName || translations[lang].user}</span>
-          <div className="user-avatar">{userName ? userName.charAt(0).toUpperCase() : 'U'}</div>
+
+        {/* User Avatar */}
+        <div className="header-avatar" title={userName || 'User'}>
+          {userName ? userName.charAt(0).toUpperCase() : 'U'}
         </div>
       </div>
       
-      {/* Hidden file input for import */}
+      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -148,8 +163,8 @@ const Header = () => {
           resetAll()
           setIsConfirmResetOpen(false)
         }}
-        title={lang === 'en' ? 'Reset All Data' : 'Resetar Todos os Dados'}
-        message={lang === 'en' ? 'Are you sure you want to reset ALL data? This will clear everything including your name. This cannot be undone.' : 'Tem certeza que deseja resetar TODOS os dados? Isso irá limpar tudo incluindo seu nome. Esta ação não pode ser desfeita.'}
+        title={isPt ? 'Resetar Todos os Dados' : 'Reset All Data'}
+        message={isPt ? 'Tem certeza que deseja resetar TODOS os dados? Isso irá limpar tudo incluindo seu nome. Esta ação não pode ser desfeita.' : 'Are you sure you want to reset ALL data? This will clear everything including your name. This cannot be undone.'}
       />
     </header>
   )

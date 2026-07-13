@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useFinance } from '../context/FinanceContext'
+import ConfirmModal from './ConfirmModal'
+import { EditIcon, DeleteIcon } from './Icons'
 import './CategoryManagerModal.css'
 
 const CategoryManagerModal = ({ isOpen, onClose }) => {
@@ -20,6 +22,11 @@ const CategoryManagerModal = ({ isOpen, onClose }) => {
   })
   
   const [error, setError] = useState('')
+  
+  // Confirm delete state
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [categoryToDelete, setCategoryToDelete] = useState(null)
+  const [deleteError, setDeleteError] = useState('')
   
   // Filtered list
   const visibleCategories = useMemo(() => {
@@ -74,12 +81,27 @@ const CategoryManagerModal = ({ isOpen, onClose }) => {
   }
   
   const handleDelete = (id) => {
-    if (confirm('Tem certeza? Isso excluirá permanentemente a categoria. Só permitido se não houver uso histórico.')) {
-      const result = deleteCategory(id)
+    setCategoryToDelete(id)
+    setIsConfirmOpen(true)
+    setDeleteError('')
+  }
+
+  const confirmDelete = () => {
+    if (categoryToDelete) {
+      const result = deleteCategory(categoryToDelete)
       if (!result.success) {
-        alert(result.error)
+        setDeleteError(result.error)
+        // Keep modal open to show error, then close after a delay
+        setTimeout(() => {
+          setIsConfirmOpen(false)
+          setCategoryToDelete(null)
+          setDeleteError('')
+        }, 2000)
+        return
       }
     }
+    setIsConfirmOpen(false)
+    setCategoryToDelete(null)
   }
 
   if (!isOpen) return null
@@ -150,18 +172,30 @@ const CategoryManagerModal = ({ isOpen, onClose }) => {
         <div className="categories-list">
           {visibleCategories.map(cat => (
             <div key={cat.id} className="category-item">
-              <div class="category-info">
+              <div className="category-info">
                 <span className="color-dot" style={{ backgroundColor: cat.color }}></span>
                 <span className="category-name">{cat.name}</span>
                 <span className="category-percentage">{cat.percentage}%</span>
               </div>
               <div className="category-actions">
-                <button onClick={() => handleEdit(cat)} title="Editar">✏️</button>
-                <button className="btn-delete" onClick={() => handleDelete(cat.id)} title="Excluir">🗑️</button>
+                <button onClick={() => handleEdit(cat)} title="Editar">
+                  <EditIcon size={14} />
+                </button>
+                <button className="btn-delete" onClick={() => handleDelete(cat.id)} title="Excluir">
+                  <DeleteIcon size={14} />
+                </button>
               </div>
             </div>
           ))}
         </div>
+
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          onClose={() => { setIsConfirmOpen(false); setCategoryToDelete(null) }}
+          onConfirm={confirmDelete}
+          title="Excluir Categoria"
+          message={deleteError || 'Tem certeza? Isso excluirá permanentemente a categoria. Só permitido se não houver uso histórico.'}
+        />
       </div>
     </div>
   )

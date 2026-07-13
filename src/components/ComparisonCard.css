@@ -1,9 +1,22 @@
 .comparison-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.015);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 18px;
   padding: var(--spacing-md);
-  box-shadow: var(--shadow-sm);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.comparison-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4),
+              0 0 15px color-mix(in srgb, var(--glow-color, rgba(255, 255, 255, 0.1)) 12%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .comparison-card h4 {
@@ -70,4 +83,44 @@
 .delta-percent {
   font-size: 0.875rem;
   opacity: 0.8;
+}
+
+/* Comparative Progress Split Bar */
+.comp-bar-wrapper {
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.comp-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-full);
+  display: flex;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.comp-bar-fill {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.comp-bar-fill.fill-a {
+  background: rgba(255, 255, 255, 0.15);
+  border-right: 1px solid rgba(10, 10, 10, 0.5);
+}
+
+.comp-bar-fill.fill-b {
+  background: var(--accent-primary);
+}
+
+.comp-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 500;
 }

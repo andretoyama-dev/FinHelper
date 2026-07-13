@@ -1,10 +1,31 @@
 // Utility functions for financial calculations
 
 export const formatCurrency = (value) => {
+  let lang = 'en'
+  try {
+    const raw = localStorage.getItem('lang')
+    if (raw) {
+      lang = JSON.parse(raw)
+    }
+  } catch (e) {
+    // fallback
+  }
+
+  // Handle NaN or invalid values gracefully to avoid "R$ NaN" or "$NaN"
+  const val = Number(value)
+  if (isNaN(val)) return lang === 'en' ? '$ 0.00' : 'R$ 0,00'
+
+  if (lang === 'en') {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(val)
+  }
+
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
-  }).format(value)
+  }).format(val)
 }
 
 export const formatDate = (date) => {
@@ -27,13 +48,17 @@ export const calculateTotalSpent = (expenses, categoryId) => {
 }
 
 export const calculateUtilization = (spent, budget) => {
-  if (budget === 0) return 0
-  return (spent / budget) * 100
+  const b = Number(budget)
+  const s = Number(spent)
+  if (isNaN(b) || isNaN(s) || b === 0) return 0
+  return (s / b) * 100
 }
 
 export const calculateSavingsRate = (income, totalExpenses) => {
-  if (income === 0) return 0
-  return ((income - totalExpenses) / income) * 100
+  const inc = Number(income)
+  const exp = Number(totalExpenses)
+  if (isNaN(inc) || isNaN(exp) || inc === 0) return 0
+  return ((inc - exp) / inc) * 100
 }
 
 export const getTopCategory = (expenses, categories) => {
@@ -67,28 +92,38 @@ export const getTopCategory = (expenses, categories) => {
 }
 
 export const redistributeGoals = (categories, changedIndex, newValue) => {
-  const updatedCategories = [...categories]
-  updatedCategories[changedIndex].percentage = newValue
+  const updatedCategories = categories.map(cat => ({
+    ...cat,
+    percentage: Number(cat.percentage) || 0
+  }))
+  
+  const targetValue = Number(newValue)
+  if (isNaN(targetValue)) return updatedCategories
+
+  updatedCategories[changedIndex].percentage = targetValue
   
   // Calculate total of other categories
   let totalOthers = 0
   updatedCategories.forEach((cat, i) => {
     if (i !== changedIndex) {
-      totalOthers += cat.percentage
+      totalOthers += Number(cat.percentage) || 0
     }
   })
   
   // Calculate remaining percentage
-  const remaining = 100 - newValue
+  const remaining = 100 - targetValue
   
   if (totalOthers === 0) {
     // If all others are zero, distribute evenly
-    const perCategory = remaining / (categories.length - 1)
-    updatedCategories.forEach((cat, i) => {
-      if (i !== changedIndex) {
-        cat.percentage = Math.round(perCategory)
-      }
-    })
+    const count = categories.length - 1
+    if (count > 0) {
+      const perCategory = remaining / count
+      updatedCategories.forEach((cat, i) => {
+        if (i !== changedIndex) {
+          cat.percentage = Math.round(perCategory)
+        }
+      })
+    }
   } else {
     // Redistribute proportionally
     const ratio = remaining / totalOthers
@@ -100,22 +135,43 @@ export const redistributeGoals = (categories, changedIndex, newValue) => {
   }
   
   // Ensure total is exactly 100%
-  const total = updatedCategories.reduce((sum, cat) => sum + cat.percentage, 0)
+  const total = updatedCategories.reduce((sum, cat) => sum + (Number(cat.percentage) || 0), 0)
   if (total !== 100 && updatedCategories.length > 0) {
-    updatedCategories[0].percentage += (100 - total)
+    // Find a valid index to adjust (prefer first non-changed index)
+    const adjustIndex = changedIndex === 0 && updatedCategories.length > 1 ? 1 : 0;
+    updatedCategories[adjustIndex].percentage += (100 - total)
   }
   
   return updatedCategories
 }
 
 export const getMonthYearString = (date) => {
-  const months = [
-    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-  ]
-  const month = months[date.getMonth()]
+  let lang = 'en'
+  try {
+    const raw = localStorage.getItem('lang')
+    if (raw) {
+      lang = JSON.parse(raw)
+    }
+  } catch (e) {
+    // fallback
+  }
+
   const year = date.getFullYear()
-  return `${month}/${year}`
+  if (lang === 'en') {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ]
+    const month = months[date.getMonth()]
+    return `${month} ${year}`
+  } else {
+    const months = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ]
+    const month = months[date.getMonth()]
+    return `${month}/${year}`
+  }
 }
 
 export const getMonthKey = (date) => {

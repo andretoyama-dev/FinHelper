@@ -53,23 +53,7 @@
   --transition-slow: 500ms ease-in-out;
 }
 
-/* Light Theme */
-[data-theme="light"] {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f5;
-  --bg-tertiary: #e5e5e5;
-  --text-primary: #0a0a0a;
-  --text-secondary: #2a2a2a;
-  --text-muted: #6b7280;
-  --accent-primary: #1a5490;
-  --accent-secondary: #2563eb;
-  --border-color: #d1d5db;
-  
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-}
+
 
 /* Reset and Base Styles */
 * {
@@ -135,6 +119,7 @@ button:disabled {
   justify-content: center;
   gap: var(--spacing-sm);
   transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 .btn-primary {
@@ -164,6 +149,38 @@ button:disabled {
 
 .btn-danger:hover {
   background: #dc2626;
+}
+
+/* Action Icon Buttons for tables/lists (edit/delete) */
+.action-icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm, 8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast, 150ms);
+}
+
+.action-icon-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.action-icon-btn.edit {
+  color: var(--text-muted);
+}
+
+.action-icon-btn.edit:hover {
+  color: var(--accent-primary, #d4a259);
+}
+
+.action-icon-btn.delete:hover {
+  color: var(--danger, #ef4444);
+  background: rgba(239, 68, 68, 0.1);
 }
 
 /* Inputs */
@@ -216,7 +233,7 @@ input::placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 11000;
   animation: fadeIn var(--transition-fast);
 }
 
@@ -377,6 +394,21 @@ input::placeholder {
   }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(212, 162, 89, 0.05); }
+  50% { box-shadow: 0 0 20px rgba(212, 162, 89, 0.12); }
+}
+
+@keyframes borderGlow {
+  0%, 100% { border-color: var(--border-color); }
+  50% { border-color: rgba(212, 162, 89, 0.3); }
+}
+
 .budget-section, 
 .goal-card, 
 .overview-section, 
@@ -395,7 +427,16 @@ input::placeholder {
 .right-column > .goals-section { animation-delay: 0.18s; }
 .overview-section { animation-delay: 0.36s; }
 
-/* Dynamic Hover Effects */
+/* Overview cards staggered entrance */
+.overview-card {
+  animation: fadeSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.overview-card:nth-child(1) { animation-delay: 0.05s; }
+.overview-card:nth-child(2) { animation-delay: 0.10s; }
+.overview-card:nth-child(3) { animation-delay: 0.15s; }
+.overview-card:nth-child(4) { animation-delay: 0.20s; }
+
+/* Dynamic Hover Effects with colored glow */
 .budget-section, .goal-card {
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
               box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
@@ -404,9 +445,60 @@ input::placeholder {
 
 .budget-section:hover, .goal-card:hover {
   transform: translateY(-3px);
-  border-color: var(--accent-primary);
-  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.3), 
-              0 0 16px 2px rgba(212, 162, 89, 0.06);
+  border-color: rgba(212, 162, 89, 0.25);
+  box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.35), 
+              0 0 20px 2px rgba(212, 162, 89, 0.06);
+}
+
+/* Overview card colored glow on hover */
+.overview-card.income:hover {
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.3), 0 0 16px rgba(212, 162, 89, 0.12);
+  border-left-width: 4px;
+}
+
+.overview-card.expenses:hover {
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.3), 0 0 16px rgba(239, 68, 68, 0.12);
+  border-left-width: 4px;
+}
+
+.overview-card.investments:hover {
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.3), 0 0 16px rgba(34, 197, 94, 0.12);
+  border-left-width: 4px;
+}
+
+.overview-card.remaining:hover {
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.3), 0 0 16px rgba(59, 130, 246, 0.12);
+  border-left-width: 4px;
+}
+
+/* Accent glow for remaining balance value */
+.overview-card.remaining .card-val {
+  text-shadow: 0 0 12px rgba(212, 162, 89, 0.3);
+}
+
+/* Subtle background gradient on budget page */
+.budget-page {
+  background: linear-gradient(180deg, var(--bg-primary) 0%, rgba(212, 162, 89, 0.01) 50%, var(--bg-primary) 100%);
+}
+
+/* Progress bar animation */
+.goal-progress-fill,
+.progress-bar-fill {
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Status badges shimmer on hover */
+.status-badge-indicator {
+  transition: all 0.3s ease;
+}
+
+.status-badge-indicator:hover {
+  transform: scale(1.05);
+}
+
+/* Enhanced table row hover with gradient */
+.table-row:hover {
+  background: linear-gradient(90deg, rgba(212, 162, 89, 0.03) 0%, transparent 100%);
 }
 
 /* Smooth Interactive Elements */
@@ -424,3 +516,27 @@ input::placeholder {
 .nav-link:hover {
   transform: translateY(-1px);
 }
+
+/* Premium button glow on hover */
+.btn-primary:hover {
+  box-shadow: 0 8px 20px -6px rgba(212, 162, 89, 0.4);
+}
+
+/* Modal backdrop blur effect */
+.modal-overlay {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Goal card completion celebration glow */
+.goal-card.completed {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+/* Subtle idle animation on remaining balance card */
+.overview-card.remaining {
+  animation: fadeSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both,
+             borderGlow 4s ease-in-out infinite;
+  animation-delay: 0.20s, 1s;
+}
+

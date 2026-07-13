@@ -2,101 +2,85 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-sm);
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .goals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
+  grid-template-columns: 1fr;
+  gap: 10px;
 }
 
 .goal-card {
   background: var(--bg-secondary);
   border-radius: var(--radius-md);
-  padding: 1.25rem;
-  border: 1px solid var(--border-color);
-  transition: transform 0.2s;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  transition: border-color var(--transition-fast);
 }
 
 .goal-card:hover {
-  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .goal-card.completed {
-  border-color: var(--success-color);
-  background: linear-gradient(to bottom right, var(--bg-secondary), rgba(16, 185, 129, 0.05));
+  border-color: var(--success);
+  background: linear-gradient(to bottom right, var(--bg-secondary), rgba(34, 197, 94, 0.03));
 }
 
 .goal-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 .goal-header h3 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--text-primary);
 }
 
 .goal-actions {
   display: flex;
-  gap: 0.5rem;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-}
-
-.goal-card:hover .goal-actions {
-  opacity: 1;
-}
-
-.goal-actions button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 0.2rem;
-  opacity: 0.7;
-}
-
-.goal-actions button:hover {
-  opacity: 1;
-  transform: scale(1.1);
+  gap: 6px;
 }
 
 .goal-progress-container {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 10px;
+  margin-bottom: 6px;
 }
 
-.goal-progress-bar {
+.goal-progress-container .goal-progress-bar {
   flex: 1;
-  height: 8px;
-  background: var(--bg-tertiary);
-  border-radius: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-full);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
-.goal-progress-fill {
+.goal-progress-container .goal-progress-fill {
   height: 100%;
-  background: var(--primary-color);
-  border-radius: 4px;
+  background: var(--accent-primary, #d4a259);
+  border-radius: var(--radius-full);
   transition: width 0.5s ease-out;
 }
 
-.goal-card.completed .goal-progress-fill {
-  background: var(--success-color);
+.goal-card.completed .goal-progress-container .goal-progress-fill {
+  background: var(--success, #22c55e);
 }
 
 .goal-percentage {
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: var(--text-secondary);
-  min-width: 35px;
+  color: var(--text-muted);
+  min-width: 30px;
   text-align: right;
 }
 
@@ -104,13 +88,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
+  width: 100%;
 }
 
 .goal-values {
   display: flex;
   align-items: baseline;
-  gap: 0.3rem;
+  gap: 4px;
 }
 
 .goal-values .current {
@@ -119,47 +104,48 @@
 }
 
 .goal-values .separator {
-  color: var(--text-tertiary);
+  color: rgba(255, 255, 255, 0.15);
 }
 
 .goal-values .target {
-  color: var(--text-tertiary);
+  color: var(--text-muted);
 }
 
 .goal-remaining {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
 }
 
 .goal-status-badge {
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--success-color);
-  padding: 0.2rem 0.6rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--success);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 600;
 }
 
 .empty-goals {
-  grid-column: 1 / -1;
   text-align: center;
-  padding: 3rem;
+  padding: 1.5rem;
   background: var(--bg-secondary);
   border-radius: var(--radius-md);
-  border: 1px dashed var(--border-color);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
 }
 
 .empty-goals p {
   color: var(--text-secondary);
-  margin-bottom: 1rem;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
 }
 
 .empty-goals button {
   background: var(--primary-color);
   color: white;
   border: none;
-  padding: 0.6rem 1.2rem;
+  padding: 6px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 500;
+  font-size: 0.8rem;
 }

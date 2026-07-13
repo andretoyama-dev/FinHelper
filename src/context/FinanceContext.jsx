@@ -24,22 +24,27 @@ const DEFAULT_CATEGORIES = [
   { id: 'conforto', name: 'Conforto', color: '#00d4aa', percentage: 15, subcategories: [] },
   { id: 'metas', name: 'Metas', color: '#f5d547', percentage: 10, subcategories: [] },
   { id: 'prazeres', name: 'Prazeres', color: '#d946ef', percentage: 10, subcategories: [] },
-  { id: 'liberdade', name: 'Liberdade financeira', color: '#60a5fa', percentage: 25, subcategories: [] },
+  { id: 'liberdade', name: 'Liberdade financeira', color: '#8b5cf6', percentage: 25, subcategories: [] },
   { id: 'conhecimento', name: 'Conhecimento', color: '#fb923c', percentage: 5, subcategories: [] },
 ]
 
 export const FinanceProvider = ({ children }) => {
   // Load initial state from localStorage
-  const [theme, setTheme] = useState(() => loadData('theme', 'dark'))
+  const [theme, setTheme] = useState('dark')
   const [userName, setUserName] = useState(() => loadData('userName', null))
   const [lang, setLang] = useState(() => loadData('lang', 'en'))
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const saved = loadData('selectedMonth')
     return saved ? new Date(saved) : new Date()
   })
-  const [categoriesGoals, setCategoriesGoals] = useState(() => 
-    loadData('categoriesGoals', DEFAULT_CATEGORIES)
-  )
+  const [categoriesGoals, setCategoriesGoals] = useState(() => {
+    const saved = loadData('categoriesGoals', DEFAULT_CATEGORIES)
+    return saved.map(cat => ({
+      ...cat,
+      color: cat.id === 'liberdade' ? '#8b5cf6' : cat.color,
+      percentage: Number(cat.percentage) || 0
+    }))
+  })
   
   // Monthly data structure: { 'YYYY-MM': { income, expenses } }
   const [monthlyData, setMonthlyData] = useState(() => 
@@ -50,6 +55,31 @@ export const FinanceProvider = ({ children }) => {
   const [financialGoals, setFinancialGoals] = useState(() => 
     loadData('financialGoals', [])
   )
+
+  // Calendar events storage
+  const [calendarEvents, setCalendarEvents] = useState(() => 
+    loadData('calendarEvents', [])
+  )
+  
+  useEffect(() => {
+    saveData('calendarEvents', calendarEvents)
+  }, [calendarEvents])
+
+  // Portfolio targets storage (Phase 3 addition)
+  const [portfolioTargets, setPortfolioTargets] = useState(() => {
+    return loadData('portfolioTargets', {
+      cripto: 10,
+      selic: 30,
+      fiis: 20,
+      acoes: 20,
+      internacional: 10,
+      caixa: 10
+    })
+  })
+
+  useEffect(() => {
+    saveData('portfolioTargets', portfolioTargets)
+  }, [portfolioTargets])
   
   // Get current month key
   const currentMonthKey = useMemo(() => getMonthKey(selectedMonth), [selectedMonth])
@@ -243,9 +273,7 @@ export const FinanceProvider = ({ children }) => {
     })
   }
   
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
-  }
+  const toggleTheme = () => {}
   
   const updateCategorySpent = (categoryId, amount) => {
     setMonthlyData(prev => ({
@@ -261,12 +289,13 @@ export const FinanceProvider = ({ children }) => {
   }
   
   // Investment management functions
-  const addInvestment = (name, amount) => {
+  const addInvestment = (name, amount, assetClass = 'caixa') => {
     const invId = `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     const newInvestment = {
       id: invId,
       name,
       amount,
+      assetClass,
       createdAt: new Date().toISOString()
     }
     
@@ -289,7 +318,8 @@ export const FinanceProvider = ({ children }) => {
                 id: `sub_${invId}`,
                 name,
                 value: amount,
-                linkedInvestmentId: invId
+                linkedInvestmentId: invId,
+                assetClass
               }
             ]
           }
@@ -315,7 +345,12 @@ export const FinanceProvider = ({ children }) => {
             ...cat,
             subcategories: (cat.subcategories || []).map(sub =>
               sub.linkedInvestmentId === investmentId
-                ? { ...sub, name: updates.name !== undefined ? updates.name : sub.name, value: updates.amount !== undefined ? updates.amount : sub.value }
+                ? { 
+                    ...sub, 
+                    name: updates.name !== undefined ? updates.name : sub.name, 
+                    value: updates.amount !== undefined ? updates.amount : sub.value,
+                    assetClass: updates.assetClass !== undefined ? updates.assetClass : sub.assetClass
+                  }
                 : sub
             )
           }
@@ -510,6 +545,7 @@ export const FinanceProvider = ({ children }) => {
     // If adding to "liberdade", also create an investment
     if (categoryId === 'liberdade') {
       const invId = `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      const assetClass = subcategoryData.assetClass || 'caixa'
       
       setMonthlyData(prev => ({
         ...prev,
@@ -519,6 +555,7 @@ export const FinanceProvider = ({ children }) => {
             id: invId,
             name: subcategoryData.name,
             amount: Number(subcategoryData.value || 0),
+            assetClass,
             createdAt: new Date().toISOString()
           }]
         }
@@ -534,7 +571,8 @@ export const FinanceProvider = ({ children }) => {
                   id: subId,
                   name: subcategoryData.name,
                   value: Number(subcategoryData.value || 0),
-                  linkedInvestmentId: invId
+                  linkedInvestmentId: invId,
+                  assetClass
                 }
               ]
             }
@@ -570,7 +608,12 @@ export const FinanceProvider = ({ children }) => {
             ...cat,
             subcategories: (cat.subcategories || []).map(sub =>
               sub.id === subcategoryId 
-                ? { ...sub, ...updates, value: updates.value !== undefined ? Number(updates.value) : sub.value } 
+                ? { 
+                    ...sub, 
+                    ...updates, 
+                    value: updates.value !== undefined ? Number(updates.value) : sub.value,
+                    assetClass: updates.assetClass !== undefined ? updates.assetClass : sub.assetClass
+                  } 
                 : sub
             )
           }
@@ -582,6 +625,7 @@ export const FinanceProvider = ({ children }) => {
       const invUpdates = {}
       if (updates.name !== undefined) invUpdates.name = updates.name
       if (updates.value !== undefined) invUpdates.amount = Number(updates.value)
+      if (updates.assetClass !== undefined) invUpdates.assetClass = updates.assetClass
       
       if (Object.keys(invUpdates).length > 0) {
         setMonthlyData(prev => ({
@@ -685,7 +729,9 @@ export const FinanceProvider = ({ children }) => {
           userName,
           categoriesGoals,
           monthlyData,
-          financialGoals
+          financialGoals,
+          calendarEvents,
+          portfolioTargets
         })
         break
       default:
@@ -702,11 +748,35 @@ export const FinanceProvider = ({ children }) => {
       if (data.categoriesGoals) setCategoriesGoals(data.categoriesGoals)
       if (data.monthlyData) setMonthlyData(data.monthlyData)
       if (data.financialGoals) setFinancialGoals(data.financialGoals)
+      if (data.calendarEvents) setCalendarEvents(data.calendarEvents)
+      if (data.portfolioTargets) setPortfolioTargets(data.portfolioTargets)
       
       return { success: true }
     } catch (error) {
       return { success: false, error: error.message }
     }
+  }
+
+  const addCalendarEvent = (eventData) => {
+    const newEvent = {
+      id: Date.now().toString(),
+      title: eventData.title,
+      description: eventData.description,
+      date: eventData.date,
+      color: eventData.color || '#4a90e2',
+    }
+    setCalendarEvents(prev => [...prev, newEvent])
+    return { success: true }
+  }
+
+  const updateCalendarEvent = (id, updates) => {
+    setCalendarEvents(prev => prev.map(evt => evt.id === id ? { ...evt, ...updates } : evt))
+    return { success: true }
+  }
+
+  const removeCalendarEvent = (id) => {
+    setCalendarEvents(prev => prev.filter(evt => evt.id !== id))
+    return { success: true }
   }
   
   const value = {
@@ -723,6 +793,8 @@ export const FinanceProvider = ({ children }) => {
     investments,
     debts,
     financialGoals,
+    calendarEvents,
+    portfolioTargets,
     
     // Computed values
     categorySpent,
@@ -766,6 +838,10 @@ export const FinanceProvider = ({ children }) => {
     exportData,
     importData,
     setUserName,
+    addCalendarEvent,
+    updateCalendarEvent,
+    removeCalendarEvent,
+    updatePortfolioTargets: setPortfolioTargets,
   }
   
   return (

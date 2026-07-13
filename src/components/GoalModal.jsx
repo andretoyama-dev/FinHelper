@@ -2,13 +2,45 @@ import { useState } from 'react'
 import { useFinance } from '../context/FinanceContext'
 import './GoalModal.css'
 
+const t = {
+  pt: {
+    editTitle: 'Editar Objetivo',
+    addTitle: 'Novo Objetivo',
+    nameLabel: 'Nome do Objetivo *',
+    namePlaceholder: 'Ex: Viagem para Europa, Reserva...',
+    targetAmountLabel: 'Valor Alvo *',
+    currentAmountLabel: 'Valor Atual (Guardado)',
+    cancel: 'Cancelar',
+    save: 'Salvar Alterações',
+    add: 'Criar Objetivo',
+    errorName: 'Nome é obrigatório',
+    errorTarget: 'Valor alvo deve ser maior que zero',
+    errorCurrent: 'Valor atual não pode ser negativo'
+  },
+  en: {
+    editTitle: 'Edit Goal',
+    addTitle: 'New Goal',
+    nameLabel: 'Goal Name *',
+    namePlaceholder: 'e.g. Europe Trip, Emergency Fund...',
+    targetAmountLabel: 'Target Amount *',
+    currentAmountLabel: 'Current Amount (Saved)',
+    cancel: 'Cancel',
+    save: 'Save Changes',
+    add: 'Create Goal',
+    errorName: 'Name is required',
+    errorTarget: 'Target amount must be greater than zero',
+    errorCurrent: 'Current amount cannot be negative'
+  }
+}
+
 const GoalModal = ({ isOpen, onClose, goalToEdit = null }) => {
-  const { addGoal, updateGoal } = useFinance()
+  const { addGoal, updateGoal, lang } = useFinance()
+  const isPt = lang === 'pt'
   
   const [formData, setFormData] = useState({
     name: goalToEdit ? goalToEdit.name : '',
-    targetAmount: goalToEdit ? goalToEdit.targetAmount : '',
-    currentAmount: goalToEdit ? goalToEdit.currentAmount : ''
+    targetAmount: goalToEdit ? goalToEdit.targetAmount : 0,
+    currentAmount: goalToEdit ? goalToEdit.currentAmount : 0
   })
   
   const [error, setError] = useState('')
@@ -16,37 +48,40 @@ const GoalModal = ({ isOpen, onClose, goalToEdit = null }) => {
   if (!isOpen) return null
 
   const handleSubmit = () => {
-    if (!formData.name) {
-      setError('Nome é obrigatório')
+    if (!formData.name.trim()) {
+      setError(t[lang].errorName)
       return
     }
     
-    if (Number(formData.targetAmount) <= 0) {
-      setError('Valor alvo deve ser maior que zero')
+    const target = Number(formData.targetAmount)
+    const current = Number(formData.currentAmount || 0)
+
+    if (target <= 0) {
+      setError(t[lang].errorTarget)
       return
     }
 
-    if (Number(formData.currentAmount) < 0) {
-      setError('Valor atual não pode ser negativo')
+    if (current < 0) {
+      setError(t[lang].errorCurrent)
       return
     }
 
     const goalData = {
-      name: formData.name,
-      targetAmount: Number(formData.targetAmount),
-      currentAmount: Number(formData.currentAmount || 0)
+      name: formData.name.trim(),
+      targetAmount: target,
+      currentAmount: current
     }
 
     if (goalToEdit) {
       const result = updateGoal(goalToEdit.id, goalData)
       if (!result.success) {
-        setError(result.error || 'Erro ao atualizar')
+        setError(result.error || 'Error updating')
         return
       }
     } else {
       const result = addGoal(goalData)
       if (!result.success) {
-        setError(result.error || 'Erro ao criar')
+        setError(result.error || 'Error creating')
         return
       }
     }
@@ -55,41 +90,43 @@ const GoalModal = ({ isOpen, onClose, goalToEdit = null }) => {
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content goal-modal">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content goal-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{goalToEdit ? 'Editar Objetivo' : 'Novo Objetivo'}</h2>
+          <h2>{goalToEdit ? t[lang].editTitle : t[lang].addTitle}</h2>
           <button className="close-btn" onClick={onClose}>&times;</button>
         </div>
         
         <div className="modal-body">
           <div className="form-group">
-            <label>Nome do Objetivo</label>
+            <label>{t[lang].nameLabel}</label>
             <input 
               type="text" 
-              placeholder="Ex: Viagem para Europa"
+              placeholder={t[lang].namePlaceholder}
               value={formData.name}
               onChange={e => setFormData({...formData, name: e.target.value})}
+              required
             />
           </div>
           
           <div className="form-group">
-            <label>Valor Alvo (R$)</label>
+            <label>{t[lang].targetAmountLabel}</label>
             <input 
               type="number" 
               placeholder="0.00"
-              value={formData.targetAmount}
-              onChange={e => setFormData({...formData, targetAmount: e.target.value})}
+              value={formData.targetAmount === 0 ? '' : formData.targetAmount}
+              onChange={e => setFormData({...formData, targetAmount: e.target.value === '' ? 0 : Number(e.target.value)})}
+              required
             />
           </div>
           
           <div className="form-group">
-            <label>Valor Atual (Guardado) (R$)</label>
+            <label>{t[lang].currentAmountLabel}</label>
             <input 
               type="number" 
               placeholder="0.00"
-              value={formData.currentAmount}
-              onChange={e => setFormData({...formData, currentAmount: e.target.value})}
+              value={formData.currentAmount === 0 ? '' : formData.currentAmount}
+              onChange={e => setFormData({...formData, currentAmount: e.target.value === '' ? 0 : Number(e.target.value)})}
             />
           </div>
           
@@ -97,9 +134,9 @@ const GoalModal = ({ isOpen, onClose, goalToEdit = null }) => {
         </div>
         
         <div className="modal-footer">
-          <button className="btn-secondary" onClick={onClose}>Cancelar</button>
-          <button className="btn-primary" onClick={handleSubmit}>
-            {goalToEdit ? 'Salvar Alterações' : 'Criar Objetivo'}
+          <button className="btn btn-secondary" onClick={onClose}>{t[lang].cancel}</button>
+          <button className="btn btn-primary" onClick={handleSubmit}>
+            {goalToEdit ? t[lang].save : t[lang].add}
           </button>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { translations } from '../utils/translations'
 import './WelcomeModal.css'
 
 const WelcomeModal = ({ isOpen, onClose }) => {
-  const { setUserName, lang } = useFinance()
+  const { setUserName, lang, setLang } = useFinance()
   const [name, setName] = useState('')
   const [error, setError] = useState('')
   
@@ -38,6 +38,26 @@ const WelcomeModal = ({ isOpen, onClose }) => {
         </div>
         
         <form onSubmit={handleSubmit} className="welcome-form">
+          <div className="form-group">
+            <label>{translations[lang].welcomeLangLabel}</label>
+            <div className="welcome-lang-buttons">
+              <button
+                type="button"
+                className={`lang-btn ${lang === 'pt' ? 'active' : ''}`}
+                onClick={() => setLang('pt')}
+              >
+                🇧🇷 Português
+              </button>
+              <button
+                type="button"
+                className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
+                onClick={() => setLang('en')}
+              >
+                🇺🇸 English
+              </button>
+            </div>
+          </div>
+
           <div className="form-group">
             <label htmlFor="userName">{translations[lang].welcomeNameLabel}</label>
             <input

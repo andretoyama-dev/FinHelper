@@ -1,9 +1,22 @@
 .chart-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.015);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 18px;
   padding: var(--spacing-md);
-  box-shadow: var(--shadow-sm);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.chart-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4),
+              0 0 15px color-mix(in srgb, var(--glow-color, rgba(255, 255, 255, 0.1)) 12%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .chart-card h3 {
@@ -15,4 +28,33 @@
 
 .recharts-tooltip-wrapper {
   outline: none;
+}
+
+/* Glassmorphic custom tooltip container */
+.chart-tooltip-container {
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chart-tooltip-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.chart-tooltip-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
 }
